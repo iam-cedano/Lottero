@@ -1,4 +1,4 @@
-export interface ChannelUrl {
+export interface ChannelLanguage {
   id: number;
   channel_id: number;
   language: string;

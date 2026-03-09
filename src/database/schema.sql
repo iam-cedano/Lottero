@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS channels (
     game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE
 );
 
--- Channel URLs table
-CREATE TABLE IF NOT EXISTS channel_urls (
+-- Channel Languages table
+CREATE TABLE IF NOT EXISTS channel_languages (
     id SERIAL PRIMARY KEY,
     channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     language VARCHAR(10) NOT NULL,

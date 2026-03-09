@@ -6,7 +6,7 @@ import { Channel } from "@/entities/channel.entity";
 export default class ChannelService {
   constructor(private readonly channelRepository: ChannelRepository) {}
 
-  async sendMessage(channel: string, data: object) {}
+  async sendMessage(_channel: string, _data: object): Promise<void> {}
 
   async createChannel(data: Partial<Channel>): Promise<Channel> {
     return this.channelRepository.create(data);
