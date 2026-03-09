@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChannelStatisticRepository = exports.ChannelUrlRepository = exports.ChannelRepository = exports.GameRepository = exports.CasinoRepository = exports.BaseRepository = void 0;
+var base_repository_1 = require("../repositories/base.repository");
+Object.defineProperty(exports, "BaseRepository", { enumerable: true, get: function () { return base_repository_1.BaseRepository; } });
+var casino_repository_1 = require("../repositories/casino.repository");
+Object.defineProperty(exports, "CasinoRepository", { enumerable: true, get: function () { return casino_repository_1.CasinoRepository; } });
+var game_repository_1 = require("../repositories/game.repository");
+Object.defineProperty(exports, "GameRepository", { enumerable: true, get: function () { return game_repository_1.GameRepository; } });
+var channel_repository_1 = require("../repositories/channel.repository");
+Object.defineProperty(exports, "ChannelRepository", { enumerable: true, get: function () { return channel_repository_1.ChannelRepository; } });
+var channel_url_repository_1 = require("../repositories/channel-url.repository");
+Object.defineProperty(exports, "ChannelUrlRepository", { enumerable: true, get: function () { return channel_url_repository_1.ChannelUrlRepository; } });
+var channel_statistic_repository_1 = require("../repositories/channel-statistic.repository");
+Object.defineProperty(exports, "ChannelStatisticRepository", { enumerable: true, get: function () { return channel_statistic_repository_1.ChannelStatisticRepository; } });
