@@ -1,4 +1,4 @@
 export interface CreateChannelMessageRequest {
-  channel_id: number;
-  message_id: number;
+  channel_group_id: number;
+  group_message_id: number;
 }

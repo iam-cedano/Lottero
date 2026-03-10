@@ -1,51 +1,53 @@
 import { Request, Response } from "express";
 import { injectable } from "tsyringe";
-import { MessageRequest, CreateChannelRequest } from "@/models/channel.model";
+import { CreateChannelRequest } from "@/models/channel.model";
 import ChannelService from "@/services/channel.service";
-import CasinoService from "@/services/casino.service";
-import GameService from "@/services/game.service";
+import ChannelGroupService from "@/services/channel-group.service";
 
 @injectable()
 export default class ChannelController {
   constructor(
     private readonly channelService: ChannelService,
-    private readonly casinoService: CasinoService,
-    private readonly gameService: GameService,
+    private readonly channelGroupService: ChannelGroupService,
   ) {}
-
-  public sendMessage(req: Request<any, any, MessageRequest>, _res: Response) {
-    const { channel, data } = req.body;
-  }
 
   public createChannel = async (
     req: Request<any, any, CreateChannelRequest>,
     res: Response,
   ): Promise<void> => {
     try {
-      const { casino_id, game_id, strategy, created } = req.body;
+      const { channel_group_id, language, chat_id } = req.body;
 
-      if (!casino_id || !game_id) {
-        res.status(400).json({ message: "Missing casino_id or game_id" });
+      if (!channel_group_id || !language || !chat_id) {
+        res
+          .status(400)
+          .json({ message: "Missing channel_group_id, language, or chat_id" });
         return;
       }
 
-      const casino = await this.casinoService.getCasinoById(casino_id);
-      if (!casino) {
-        res.status(404).json({ message: "Casino not found" });
+      const existingChannelGroup =
+        await this.channelGroupService.getChannelGroupById(channel_group_id);
+      if (!existingChannelGroup) {
+        res.status(404).json({ message: "Channel group not found" });
         return;
       }
 
-      const game = await this.gameService.getGameById(game_id);
-      if (!game) {
-        res.status(404).json({ message: "Game not found" });
+      const existingLanguageUrl =
+        await this.channelService.getChannelByChannelGroupIdAndLanguage(
+          channel_group_id,
+          language,
+        );
+      if (existingLanguageUrl) {
+        res
+          .status(409)
+          .json({ message: "Language already defined for this channel group" });
         return;
       }
 
       const channel = await this.channelService.createChannel({
-        casino_id,
-        game_id,
-        strategy,
-        created: created ? new Date(created) : undefined,
+        channel_group_id,
+        language,
+        chat_id,
       });
 
       res.status(201).json(channel);
@@ -84,6 +86,27 @@ export default class ChannelController {
     }
   };
 
+  public getChannelsByChannelGroupId = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
+    try {
+      const channelGroupId = parseInt(req.params.channelGroupId as string, 10);
+      if (isNaN(channelGroupId)) {
+        res.status(400).json({ message: "Invalid channel group ID" });
+        return;
+      }
+      const channels =
+        await this.channelService.getChannelsByChannelGroupId(channelGroupId);
+      res.status(200).json(channels);
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to fetch channels by channel group id",
+        error,
+      });
+    }
+  };
+
   public updateChannel = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
@@ -91,30 +114,54 @@ export default class ChannelController {
         res.status(400).json({ message: "Invalid channel ID" });
         return;
       }
-      const { casino_id, game_id, strategy, created } = req.body;
+      const { channel_group_id, language, chat_id } = req.body;
 
-      if (!casino_id || !game_id) {
-        res.status(400).json({ message: "Missing casino_id or game_id" });
+      const existingChannel = await this.channelService.getChannelById(id);
+      if (!existingChannel) {
+        res.status(404).json({ message: "Channel not found" });
         return;
       }
 
-      const casino = await this.casinoService.getCasinoById(casino_id);
-      if (!casino) {
-        res.status(404).json({ message: "Casino not found" });
-        return;
+      const targetChannelGroupId =
+        channel_group_id !== undefined
+          ? channel_group_id
+          : existingChannel.channel_group_id;
+      const targetLanguage =
+        language !== undefined ? language : existingChannel.language;
+
+      if (
+        targetChannelGroupId !== existingChannel.channel_group_id ||
+        targetLanguage !== existingChannel.language
+      ) {
+        const duplicate =
+          await this.channelService.getChannelByChannelGroupIdAndLanguage(
+            targetChannelGroupId,
+            targetLanguage,
+          );
+        if (duplicate) {
+          res.status(409).json({
+            message: "Language already defined for this channel group",
+          });
+          return;
+        }
       }
 
-      const game = await this.gameService.getGameById(game_id);
-      if (!game) {
-        res.status(404).json({ message: "Game not found" });
-        return;
+      if (
+        channel_group_id &&
+        channel_group_id !== existingChannel.channel_group_id
+      ) {
+        const existingChannelGroup =
+          await this.channelGroupService.getChannelGroupById(channel_group_id);
+        if (!existingChannelGroup) {
+          res.status(404).json({ message: "Channel group not found" });
+          return;
+        }
       }
 
       const updatedChannel = await this.channelService.updateChannel(id, {
-        casino_id,
-        game_id,
-        strategy,
-        created: created ? new Date(created) : undefined,
+        channel_group_id,
+        language,
+        chat_id,
       });
       if (!updatedChannel) {
         res.status(404).json({ message: "Channel not found" });

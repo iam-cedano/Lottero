@@ -5,52 +5,58 @@ CREATE TABLE IF NOT EXISTS casinos (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     alias VARCHAR(100) NULL,
-    url VARCHAR(100) NOT NULL
+    url VARCHAR(100) NOT NULL,
+    status BOOLEAN DEFAULT TRUE
 );
 
 -- Games table
 CREATE TABLE IF NOT EXISTS games (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    alias VARCHAR(100) NULL
+    alias VARCHAR(100) NULL,
+    status BOOLEAN DEFAULT TRUE
+);
+
+-- Channel Groups table
+CREATE TABLE IF NOT EXISTS channel_groups (
+    id SERIAL PRIMARY KEY,
+    casino_id INTEGER NOT NULL REFERENCES casinos(id),
+    game_id INTEGER NOT NULL REFERENCES games(id),
+    strategy VARCHAR(50),
+    created DATE,
+    status BOOLEAN DEFAULT TRUE
 );
 
 -- Channels table
 CREATE TABLE IF NOT EXISTS channels (
     id SERIAL PRIMARY KEY,
-    casino_id INTEGER NOT NULL REFERENCES casinos(id) ON DELETE CASCADE,
-    game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
-    strategy VARCHAR(50),
-    created DATE
-);
-
--- Channel Languages table
-CREATE TABLE IF NOT EXISTS channel_languages (
-    id SERIAL PRIMARY KEY,
-    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    channel_group_id INTEGER NOT NULL REFERENCES channel_groups(id),
     language VARCHAR(10) NOT NULL,
-    channel VARCHAR(100) NOT NULL,
-    UNIQUE(channel_id, language)
+    chat_id VARCHAR(32) NOT NULL,
+    status BOOLEAN DEFAULT TRUE,
+    UNIQUE(channel_group_id, language)
 );
 
--- Channel Statistics table
-CREATE TABLE IF NOT EXISTS channel_statistics (
+-- Channel Group Statistics table
+CREATE TABLE IF NOT EXISTS channel_group_statistics (
     id SERIAL PRIMARY KEY,
-    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    channel_group_id INTEGER NOT NULL REFERENCES channel_groups(id) ON DELETE CASCADE,
     the_date DATE NOT NULL,
     data JSONB NOT NULL
 );
 
--- Messages table
-CREATE TABLE IF NOT EXISTS messages (
+-- Group Messages table
+CREATE TABLE IF NOT EXISTS group_messages (
     id SERIAL PRIMARY KEY,
-    content TEXT NOT NULL,
-    action VARCHAR(50) NOT NULL
+    channel_group_id INTEGER NOT NULL REFERENCES channel_groups(id),
+    data JSONB,
+    created DATE
 );
 
 -- Channel Messages table
 CREATE TABLE IF NOT EXISTS channel_messages (
     id SERIAL PRIMARY KEY,
-    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
-    message_id INTEGER NOT NULL REFERENCES messages(id) ON DELETE CASCADE
+    group_message_id INTEGER NOT NULL REFERENCES group_messages(id),
+    channel_id INTEGER NOT NULL REFERENCES channels(id),
+    telegram_message_id INTEGER NOT NULL
 );

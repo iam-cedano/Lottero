@@ -6,8 +6,6 @@ import { Channel } from "@/entities/channel.entity";
 export default class ChannelService {
   constructor(private readonly channelRepository: ChannelRepository) {}
 
-  async sendMessage(_channel: string, _data: object): Promise<void> {}
-
   async createChannel(data: Partial<Channel>): Promise<Channel> {
     return this.channelRepository.create(data);
   }
@@ -18,6 +16,22 @@ export default class ChannelService {
 
   async getChannelById(id: number): Promise<Channel | null> {
     return this.channelRepository.findById(id);
+  }
+
+  async getChannelsByChannelGroupId(
+    channelGroupId: number,
+  ): Promise<Channel[]> {
+    return this.channelRepository.findByChannelGroupId(channelGroupId);
+  }
+
+  async getChannelByChannelGroupIdAndLanguage(
+    channelGroupId: number,
+    language: string,
+  ): Promise<Channel | null> {
+    return this.channelRepository.findByChannelGroupIdAndLanguage(
+      channelGroupId,
+      language,
+    );
   }
 
   async updateChannel(

@@ -9,18 +9,22 @@ export default class ChannelMessageRepository extends BaseRepository<ChannelMess
     super(pool, "channel_messages");
   }
 
-  async findByChannelId(channelId: number): Promise<ChannelMessage[]> {
+  async findByChannelGroupId(
+    channelGroupId: number,
+  ): Promise<ChannelMessage[]> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE channel_id = $1`,
-      [channelId],
+      `SELECT * FROM ${this.tableName} WHERE channel_group_id = $1`,
+      [channelGroupId],
     );
     return result.rows;
   }
 
-  async findByMessageId(messageId: number): Promise<ChannelMessage[]> {
+  async findByGroupMessageId(
+    groupMessageId: number,
+  ): Promise<ChannelMessage[]> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE message_id = $1`,
-      [messageId],
+      `SELECT * FROM ${this.tableName} WHERE group_message_id = $1`,
+      [groupMessageId],
     );
     return result.rows;
   }

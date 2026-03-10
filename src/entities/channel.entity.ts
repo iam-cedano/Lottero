@@ -1,7 +1,7 @@
 export interface Channel {
   id: number;
-  casino_id: number;
-  game_id: number;
-  strategy?: string;
-  created?: Date;
+  channel_group_id: number;
+  language: string;
+  chat_id: string;
+  status: boolean;
 }

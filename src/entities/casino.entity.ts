@@ -3,4 +3,5 @@ export interface Casino {
   name: string;
   alias?: string;
   url: string;
+  status: boolean;
 }

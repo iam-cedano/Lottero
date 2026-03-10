@@ -1,18 +1,20 @@
 import CasinoException from "@/exceptions/casino.exception";
 import GameException from "@/exceptions/game.exception";
-import ChannelBuilder from "@/services/channel.builder";
+import ChannelGroupBuilder from "@/services/channel-group.builder";
 import { describe, expect, it } from "vitest";
 
-describe("Channel Builder", () => {
+describe("Channel Group Builder", () => {
   it("should throw an exception when the casino is not found", () => {
     expect(() => {
-      const channelService = ChannelBuilder.getChannel("non_existent_casino");
+      const channelGroupService = ChannelGroupBuilder.getChannelGroup(
+        "non_existent_casino",
+      );
     }).toThrow(CasinoException);
   });
 
   it("should throw an exception when the game is not found", () => {
     expect(() => {
-      const channelService = ChannelBuilder.getChannel(
+      const channelGroupService = ChannelGroupBuilder.getChannelGroup(
         "one_win",
         "non_existent_game",
       );

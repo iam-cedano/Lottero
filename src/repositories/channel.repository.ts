@@ -9,11 +9,22 @@ export default class ChannelRepository extends BaseRepository<Channel> {
     super(pool, "channels");
   }
 
-  async findByCasinoId(casinoId: number): Promise<Channel[]> {
+  async findByChannelGroupId(channelGroupId: number): Promise<Channel[]> {
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE casino_id = $1`,
-      [casinoId],
+      `SELECT * FROM ${this.tableName} WHERE channel_group_id = $1`,
+      [channelGroupId],
     );
     return result.rows;
+  }
+
+  async findByChannelGroupIdAndLanguage(
+    channelGroupId: number,
+    language: string,
+  ): Promise<Channel | null> {
+    const result = await this.pool.query(
+      `SELECT * FROM ${this.tableName} WHERE channel_group_id = $1 AND language = $2`,
+      [channelGroupId, language],
+    );
+    return result.rows[0] || null;
   }
 }

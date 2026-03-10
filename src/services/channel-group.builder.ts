@@ -2,8 +2,8 @@ import container from "@/container";
 import CasinoException from "@/exceptions/casino.exception";
 import GameException from "@/exceptions/game.exception";
 
-export default class ChannelBuilder {
-  static getChannel(casino: string, game?: string) {
+export default class ChannelGroupBuilder {
+  static getChannelGroup(casino: string, game?: string) {
     const token = game ? `${casino}_${game}` : `${casino}_broadcast`;
 
     if (!container.isRegistered(token)) {

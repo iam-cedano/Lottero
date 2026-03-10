@@ -18,20 +18,24 @@ export default class ChannelMessageService {
     return this.channelMessageRepository.findAll();
   }
 
-  async getChannelMessageById(id: number): Promise<ChannelMessage | null> {
+  async getChannelMessageById(
+    id: number,
+  ): Promise<ChannelMessage | null> {
     return this.channelMessageRepository.findById(id);
   }
 
-  async getChannelMessagesByChannelId(
-    channelId: number,
+  async getChannelMessagesByChannelGroupId(
+    channelGroupId: number,
   ): Promise<ChannelMessage[]> {
-    return this.channelMessageRepository.findByChannelId(channelId);
+    return this.channelMessageRepository.findByChannelGroupId(
+      channelGroupId,
+    );
   }
 
-  async getChannelMessagesByMessageId(
-    messageId: number,
+  async getChannelMessagesByGroupMessageId(
+    groupMessageId: number,
   ): Promise<ChannelMessage[]> {
-    return this.channelMessageRepository.findByMessageId(messageId);
+    return this.channelMessageRepository.findByGroupMessageId(groupMessageId);
   }
 
   async updateChannelMessage(
