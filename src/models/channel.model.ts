@@ -17,4 +17,6 @@ export interface DeleteMessageRequest {
 export interface CreateChannelRequest {
   casino_id: number;
   game_id: number;
+  strategy?: string;
+  created?: string;
 }

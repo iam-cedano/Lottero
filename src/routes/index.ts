@@ -5,6 +5,8 @@ import channelLanguageRoutes from "@/routes/channel-language.route";
 import casinoRoutes from "@/routes/casino.route";
 import gameRoutes from "@/routes/game.route";
 import channelStatisticRoutes from "@/routes/channel-statistic.route";
+import messageRoutes from "@/routes/message.route";
+import channelMessageRoutes from "@/routes/channel-message.route";
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.use("/", channelLanguageRoutes);
 router.use("/", casinoRoutes);
 router.use("/", gameRoutes);
 router.use("/", channelStatisticRoutes);
+router.use("/", messageRoutes);
+router.use("/", channelMessageRoutes);
 
 export default router;
