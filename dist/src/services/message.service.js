@@ -13,31 +13,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const tsyringe_1 = require("tsyringe");
-const channel_repository_1 = __importDefault(require("../repositories/channel.repository"));
-let ChannelService = class ChannelService {
-    channelRepository;
-    constructor(channelRepository) {
-        this.channelRepository = channelRepository;
+const message_repository_1 = __importDefault(require("../repositories/message.repository"));
+let MessageService = class MessageService {
+    messageRepository;
+    constructor(messageRepository) {
+        this.messageRepository = messageRepository;
     }
-    async sendMessage(_channel, _data) { }
-    async createChannel(data) {
-        return this.channelRepository.create(data);
+    async createMessage(data) {
+        return this.messageRepository.create(data);
     }
-    async getChannels() {
-        return this.channelRepository.findAll();
+    async getMessages() {
+        return this.messageRepository.findAll();
     }
-    async getChannelById(id) {
-        return this.channelRepository.findById(id);
+    async getMessageById(id) {
+        return this.messageRepository.findById(id);
     }
-    async updateChannel(id, data) {
-        return this.channelRepository.update(id, data);
+    async updateMessage(id, data) {
+        return this.messageRepository.update(id, data);
     }
-    async deleteChannel(id) {
-        return this.channelRepository.delete(id);
+    async deleteMessage(id) {
+        return this.messageRepository.delete(id);
     }
 };
-ChannelService = __decorate([
+MessageService = __decorate([
     (0, tsyringe_1.injectable)(),
-    __metadata("design:paramtypes", [channel_repository_1.default])
-], ChannelService);
-exports.default = ChannelService;
+    __metadata("design:paramtypes", [message_repository_1.default])
+], MessageService);
+exports.default = MessageService;

@@ -30,7 +30,7 @@ let ChannelController = class ChannelController {
     }
     createChannel = async (req, res) => {
         try {
-            const { casino_id, game_id } = req.body;
+            const { casino_id, game_id, strategy, created } = req.body;
             if (!casino_id || !game_id) {
                 res.status(400).json({ message: "Missing casino_id or game_id" });
                 return;
@@ -48,6 +48,8 @@ let ChannelController = class ChannelController {
             const channel = await this.channelService.createChannel({
                 casino_id,
                 game_id,
+                strategy,
+                created: created ? new Date(created) : undefined,
             });
             res.status(201).json(channel);
         }
@@ -89,7 +91,7 @@ let ChannelController = class ChannelController {
                 res.status(400).json({ message: "Invalid channel ID" });
                 return;
             }
-            const { casino_id, game_id } = req.body;
+            const { casino_id, game_id, strategy, created } = req.body;
             if (!casino_id || !game_id) {
                 res.status(400).json({ message: "Missing casino_id or game_id" });
                 return;
@@ -107,6 +109,8 @@ let ChannelController = class ChannelController {
             const updatedChannel = await this.channelService.updateChannel(id, {
                 casino_id,
                 game_id,
+                strategy,
+                created: created ? new Date(created) : undefined,
             });
             if (!updatedChannel) {
                 res.status(404).json({ message: "Channel not found" });

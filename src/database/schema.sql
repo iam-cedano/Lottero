@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS games (
 CREATE TABLE IF NOT EXISTS channels (
     id SERIAL PRIMARY KEY,
     casino_id INTEGER NOT NULL REFERENCES casinos(id) ON DELETE CASCADE,
-    game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE
+    game_id INTEGER NOT NULL REFERENCES games(id) ON DELETE CASCADE,
+    strategy VARCHAR(50),
+    created DATE
 );
 
 -- Channel Languages table
@@ -37,4 +39,18 @@ CREATE TABLE IF NOT EXISTS channel_statistics (
     channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     the_date DATE NOT NULL,
     data JSONB NOT NULL
+);
+
+-- Messages table
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    action VARCHAR(50) NOT NULL
+);
+
+-- Channel Messages table
+CREATE TABLE IF NOT EXISTS channel_messages (
+    id SERIAL PRIMARY KEY,
+    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    message_id INTEGER NOT NULL REFERENCES messages(id) ON DELETE CASCADE
 );

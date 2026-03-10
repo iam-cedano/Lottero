@@ -8,36 +8,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const pg_1 = require("pg");
 const tsyringe_1 = require("tsyringe");
-const channel_repository_1 = __importDefault(require("../repositories/channel.repository"));
-let ChannelService = class ChannelService {
-    channelRepository;
-    constructor(channelRepository) {
-        this.channelRepository = channelRepository;
+const base_repository_1 = __importDefault(require("../repositories/base.repository"));
+let ChannelMessageRepository = class ChannelMessageRepository extends base_repository_1.default {
+    constructor(pool) {
+        super(pool, "channel_messages");
     }
-    async sendMessage(_channel, _data) { }
-    async createChannel(data) {
-        return this.channelRepository.create(data);
+    async findByChannelId(channelId) {
+        const result = await this.pool.query(`SELECT * FROM ${this.tableName} WHERE channel_id = $1`, [channelId]);
+        return result.rows;
     }
-    async getChannels() {
-        return this.channelRepository.findAll();
-    }
-    async getChannelById(id) {
-        return this.channelRepository.findById(id);
-    }
-    async updateChannel(id, data) {
-        return this.channelRepository.update(id, data);
-    }
-    async deleteChannel(id) {
-        return this.channelRepository.delete(id);
+    async findByMessageId(messageId) {
+        const result = await this.pool.query(`SELECT * FROM ${this.tableName} WHERE message_id = $1`, [messageId]);
+        return result.rows;
     }
 };
-ChannelService = __decorate([
+ChannelMessageRepository = __decorate([
     (0, tsyringe_1.injectable)(),
-    __metadata("design:paramtypes", [channel_repository_1.default])
-], ChannelService);
-exports.default = ChannelService;
+    __param(0, (0, tsyringe_1.inject)("PgPool")),
+    __metadata("design:paramtypes", [pg_1.Pool])
+], ChannelMessageRepository);
+exports.default = ChannelMessageRepository;
