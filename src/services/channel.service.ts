@@ -4,32 +4,34 @@ import { Channel } from "@/entities/channel.entity";
 
 @injectable()
 export default class ChannelService {
-  constructor(private readonly channelRepository: ChannelRepository) {}
+  constructor(
+    private readonly channelRepository: ChannelRepository
+  ) {}
 
   async createChannel(data: Partial<Channel>): Promise<Channel> {
     return this.channelRepository.create(data);
   }
 
   async getChannels(): Promise<Channel[]> {
-    return this.channelRepository.findAll();
+    return this.channelRepository.findAllWithGroup();
   }
 
   async getChannelById(id: number): Promise<Channel | null> {
-    return this.channelRepository.findById(id);
+    return this.channelRepository.findByIdWithGroup(id);
   }
 
-  async getChannelsByChannelGroupId(
-    channelGroupId: number,
+  async getChannelsByGroupId(
+    groupId: number,
   ): Promise<Channel[]> {
-    return this.channelRepository.findByChannelGroupId(channelGroupId);
+    return this.channelRepository.findByGroupId(groupId);
   }
 
-  async getChannelByChannelGroupIdAndLanguage(
-    channelGroupId: number,
+  async getChannelByGroupIdAndLanguage(
+    groupId: number,
     language: string,
   ): Promise<Channel | null> {
-    return this.channelRepository.findByChannelGroupIdAndLanguage(
-      channelGroupId,
+    return this.channelRepository.findByGroupIdAndLanguage(
+      groupId,
       language,
     );
   }
@@ -38,7 +40,9 @@ export default class ChannelService {
     id: number,
     data: Partial<Channel>,
   ): Promise<Channel | null> {
-    return this.channelRepository.update(id, data);
+    const updated = await this.channelRepository.update(id, data);
+    if (!updated) return null;
+    return this.getChannelById(id);
   }
 
   async deleteChannel(id: number): Promise<boolean> {

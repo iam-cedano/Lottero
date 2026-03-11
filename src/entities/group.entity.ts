@@ -1,4 +1,4 @@
-export interface ChannelGroup {
+export interface Group {
   id: number;
   casino_id: number;
   game_id: number;

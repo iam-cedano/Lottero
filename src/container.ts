@@ -1,7 +1,7 @@
 import { container } from "tsyringe";
 import { pool } from "@/database";
-import OneWinBroadcastService from "@/services/casinos/OneWinBroadcast.service";
-import OneWinAviatorService from "@/services/aviator/OneWin.service";
+import OneWinBroadcastService from "@/services/groups/OneWinGroups.service";
+import OneWinAviatorService from "@/services/games/aviator/OneWin.simple-strategy.service";
 
 container.register("PgPool", { useValue: pool });
 

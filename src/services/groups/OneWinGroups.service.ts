@@ -1,16 +1,17 @@
 import { injectable, inject } from "tsyringe";
-import ChannelGroupService from "@/services/channel-group.service";
+import GroupService from "@/services/group.service";
 import CasinoRepository from "@/repositories/casino.repository";
-import ChannelGroupRepository from "@/repositories/channel-group.repository";
+import GroupRepository from "@/repositories/group.repository";
+import ReportingServiceAbstract from "@/services/reporting.service.abstract";
 
 @injectable()
-export default class OneWinAviatorService extends ChannelGroupService {
+export default class OneWinBroadcastService extends ReportingServiceAbstract {
   constructor(
     @inject(CasinoRepository) private casinoRepo: CasinoRepository,
-    @inject(ChannelGroupRepository)
-    private channelGroupRepo: ChannelGroupRepository,
+    @inject(GroupRepository)
+    private groupRepo: GroupRepository,
   ) {
-    super(channelGroupRepo);
+    super();
   }
 
   public sendMessage(): Promise<void> {

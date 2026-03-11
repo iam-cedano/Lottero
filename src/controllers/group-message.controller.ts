@@ -15,15 +15,15 @@ export default class GroupMessageController {
     res: Response,
   ): Promise<void> => {
     try {
-      const { channel_group_id, data, created } = req.body;
+      const { group_id, data, created } = req.body;
 
-      if (!channel_group_id) {
-        res.status(400).json({ groupMessage: "Missing channel_group_id" });
+      if (!group_id) {
+        res.status(400).json({ groupMessage: "Missing group_id" });
         return;
       }
 
       const groupMessage = await this.groupMessageService.createGroupMessage({
-        channel_group_id,
+        group_id,
         data,
         created,
       });
@@ -83,12 +83,12 @@ export default class GroupMessageController {
         res.status(400).json({ groupMessage: "Invalid groupMessage ID" });
         return;
       }
-      const { channel_group_id, data, created }: UpdateGroupMessageRequest =
+      const { group_id, data, created }: UpdateGroupMessageRequest =
         req.body;
 
       const updatedGroupMessage =
         await this.groupMessageService.updateGroupMessage(id, {
-          channel_group_id,
+          group_id,
           data,
           created,
         });

@@ -1,48 +1,48 @@
 import { Request, Response } from "express";
 import { injectable } from "tsyringe";
 import {
-  CreateChannelGroupStatisticRequest,
-  UpdateChannelGroupStatisticRequest,
-} from "@/models/channel-group-statistic.model";
-import ChannelGroupStatisticService from "@/services/channel-group-statistic.service";
-import ChannelGroupService from "@/services/channel-group.service";
+  CreateGroupStatisticRequest,
+  UpdateGroupStatisticRequest,
+} from "@/models/group-statistic.model";
+import GroupStatisticService from "@/services/group-statistic.service";
+import GroupService from "@/services/group.service";
 
 @injectable()
-export default class ChannelGroupStatisticController {
+export default class GroupStatisticController {
   constructor(
-    private readonly channelGroupStatisticService: ChannelGroupStatisticService,
-    private readonly channelGroupService: ChannelGroupService,
+    private readonly groupStatisticService: GroupStatisticService,
+    private readonly groupService: GroupService,
   ) {}
 
-  public createChannelGroupStatistic = async (
-    req: Request<any, any, CreateChannelGroupStatisticRequest>,
+  public createGroupStatistic = async (
+    req: Request<any, any, CreateGroupStatisticRequest>,
     res: Response,
   ): Promise<void> => {
     try {
-      const { channel_group_id, the_date, data } = req.body;
+      const { group_id, the_date, data } = req.body;
 
-      if (!channel_group_id || !the_date || !data) {
+      if (!group_id || !the_date || !data) {
         res
           .status(400)
-          .json({ message: "Missing channel_group_id, the_date, or data" });
+          .json({ message: "Missing group_id, the_date, or data" });
         return;
       }
 
-      const channelGroup =
-        await this.channelGroupService.getChannelGroupById(channel_group_id);
-      if (!channelGroup) {
+      const group =
+        await this.groupService.getGroupById(group_id);
+      if (!group) {
         res.status(404).json({ message: "Channel group not found" });
         return;
       }
 
-      const channelGroupStatistic =
-        await this.channelGroupStatisticService.createChannelGroupStatistic({
-          channel_group_id,
+      const groupStatistic =
+        await this.groupStatisticService.createGroupStatistic({
+          group_id,
           the_date: new Date(the_date),
           data,
         });
 
-      res.status(201).json(channelGroupStatistic);
+      res.status(201).json(groupStatistic);
     } catch (error) {
       res
         .status(500)
@@ -50,14 +50,14 @@ export default class ChannelGroupStatisticController {
     }
   };
 
-  public getChannelGroupStatistics = async (
+  public getGroupStatistics = async (
     _req: Request,
     res: Response,
   ): Promise<void> => {
     try {
-      const channelGroupStatistics =
-        await this.channelGroupStatisticService.getChannelGroupStatistics();
-      res.status(200).json(channelGroupStatistics);
+      const groupStatistics =
+        await this.groupStatisticService.getGroupStatistics();
+      res.status(200).json(groupStatistics);
     } catch (error) {
       res
         .status(500)
@@ -65,7 +65,7 @@ export default class ChannelGroupStatisticController {
     }
   };
 
-  public getChannelGroupStatisticById = async (
+  public getGroupStatisticById = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
@@ -75,15 +75,15 @@ export default class ChannelGroupStatisticController {
         res.status(400).json({ message: "Invalid channel group statistic ID" });
         return;
       }
-      const channelGroupStatistic =
-        await this.channelGroupStatisticService.getChannelGroupStatisticById(
+      const groupStatistic =
+        await this.groupStatisticService.getGroupStatisticById(
           id,
         );
-      if (!channelGroupStatistic) {
+      if (!groupStatistic) {
         res.status(404).json({ message: "Channel group statistic not found" });
         return;
       }
-      res.status(200).json(channelGroupStatistic);
+      res.status(200).json(groupStatistic);
     } catch (error) {
       res
         .status(500)
@@ -91,7 +91,7 @@ export default class ChannelGroupStatisticController {
     }
   };
 
-  public updateChannelGroupStatistic = async (
+  public updateGroupStatistic = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
@@ -101,34 +101,34 @@ export default class ChannelGroupStatisticController {
         res.status(400).json({ message: "Invalid channel group statistic ID" });
         return;
       }
-      const { channel_group_id, the_date, data } =
-        req.body as UpdateChannelGroupStatisticRequest;
+      const { group_id, the_date, data } =
+        req.body as UpdateGroupStatisticRequest;
 
-      if (channel_group_id) {
-        const channelGroup =
-          await this.channelGroupService.getChannelGroupById(channel_group_id);
-        if (!channelGroup) {
+      if (group_id) {
+        const group =
+          await this.groupService.getGroupById(group_id);
+        if (!group) {
           res.status(404).json({ message: "Channel group not found" });
           return;
         }
       }
 
       const updateData: any = {};
-      if (channel_group_id !== undefined)
-        updateData.channel_group_id = channel_group_id;
+      if (group_id !== undefined)
+        updateData.group_id = group_id;
       if (the_date !== undefined) updateData.the_date = new Date(the_date);
       if (data !== undefined) updateData.data = data;
 
-      const updatedChannelGroupStatistic =
-        await this.channelGroupStatisticService.updateChannelGroupStatistic(
+      const updatedGroupStatistic =
+        await this.groupStatisticService.updateGroupStatistic(
           id,
           updateData,
         );
-      if (!updatedChannelGroupStatistic) {
+      if (!updatedGroupStatistic) {
         res.status(404).json({ message: "Channel group statistic not found" });
         return;
       }
-      res.status(200).json(updatedChannelGroupStatistic);
+      res.status(200).json(updatedGroupStatistic);
     } catch (error) {
       res
         .status(500)
@@ -136,7 +136,7 @@ export default class ChannelGroupStatisticController {
     }
   };
 
-  public deleteChannelGroupStatistic = async (
+  public deleteGroupStatistic = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
@@ -147,7 +147,7 @@ export default class ChannelGroupStatisticController {
         return;
       }
       const success =
-        await this.channelGroupStatisticService.deleteChannelGroupStatistic(id);
+        await this.groupStatisticService.deleteGroupStatistic(id);
       if (!success) {
         res.status(404).json({ message: "Channel group statistic not found" });
         return;

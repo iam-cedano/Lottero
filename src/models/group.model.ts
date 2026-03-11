@@ -1,20 +1,20 @@
 export interface MessageRequest {
-  channel_group: string;
+  group: string;
   action: string;
   data: object;
 }
 
 export interface EditMessageRequest {
-  channel_group: string;
+  group: string;
   data: object;
 }
 
 export interface DeleteMessageRequest {
-  channel_group: string;
+  group: string;
   data: object;
 }
 
-export interface CreateChannelGroupRequest {
+export interface CreateGroupRequest {
   casino_id: number;
   game_id: number;
   strategy?: string;

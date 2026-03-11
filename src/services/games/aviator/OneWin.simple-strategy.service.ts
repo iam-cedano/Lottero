@@ -1,17 +1,14 @@
 import { injectable, inject } from "tsyringe";
-import ChannelGroupService from "@/services/channel-group.service";
 import CasinoRepository from "@/repositories/casino.repository";
-import ChannelGroupRepository from "@/repositories/channel-group.repository";
+import GroupRepository from "@/repositories/group.repository";
+import ReportingServiceAbstract from "@/services/reporting.service.abstract";
 
 @injectable()
-export default class OneWinBroadcastService extends ChannelGroupService {
+export default class OneWinAviatorService implements ReportingServiceAbstract {
   constructor(
     @inject(CasinoRepository) private casinoRepo: CasinoRepository,
-    @inject(ChannelGroupRepository)
-    private channelGroupRepo: ChannelGroupRepository,
-  ) {
-    super(channelGroupRepo);
-  }
+    @inject(GroupRepository) private groupRepo: GroupRepository,
+  ) {}
 
   public sendMessage(): Promise<void> {
     throw new Error("Not implemented yet.");

@@ -24,11 +24,11 @@ export default class ChannelMessageService {
     return this.channelMessageRepository.findById(id);
   }
 
-  async getChannelMessagesByChannelGroupId(
-    channelGroupId: number,
+  async getChannelMessagesByGroupId(
+    groupId: number,
   ): Promise<ChannelMessage[]> {
-    return this.channelMessageRepository.findByChannelGroupId(
-      channelGroupId,
+    return this.channelMessageRepository.findByGroupId(
+      groupId,
     );
   }
 

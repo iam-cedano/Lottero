@@ -14,44 +14,51 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const tsyringe_1 = require("tsyringe");
 const channel_message_service_1 = __importDefault(require("../services/channel-message.service"));
-const channel_service_1 = __importDefault(require("../services/channel.service"));
-const message_service_1 = __importDefault(require("../services/message.service"));
+const group_service_1 = __importDefault(require("../services/group.service"));
+const group_message_service_1 = __importDefault(require("../services/group-message.service"));
 let ChannelMessageController = class ChannelMessageController {
     channelMessageService;
-    channelService;
-    messageService;
-    constructor(channelMessageService, channelService, messageService) {
+    groupService;
+    groupMessageService;
+    constructor(channelMessageService, groupService, groupMessageService) {
         this.channelMessageService = channelMessageService;
-        this.channelService = channelService;
-        this.messageService = messageService;
+        this.groupService = groupService;
+        this.groupMessageService = groupMessageService;
     }
     createChannelMessage = async (req, res) => {
         try {
-            const { channel_id, message_id } = req.body;
-            if (!channel_id || !message_id) {
-                res.status(400).json({ message: "Missing channel_id or message_id" });
+            const { group_id, group_message_id } = req.body;
+            if (!group_id || !group_message_id) {
+                res
+                    .status(400)
+                    .json({
+                    groupMessage: "Missing group_id or group_message_id",
+                });
                 return;
             }
-            const channel = await this.channelService.getChannelById(channel_id);
-            if (!channel) {
-                res.status(404).json({ message: "Channel not found" });
+            const group = await this.groupService.getGroupById(group_id);
+            if (!group) {
+                res.status(404).json({ groupMessage: "Channel group not found" });
                 return;
             }
-            const message = await this.messageService.getMessageById(message_id);
-            if (!message) {
-                res.status(404).json({ message: "Message not found" });
+            const groupMessage = await this.groupMessageService.getMessageById(group_message_id);
+            if (!groupMessage) {
+                res.status(404).json({ groupMessage: "GroupMessage not found" });
                 return;
             }
             const channelMessage = await this.channelMessageService.createChannelMessage({
-                channel_id,
-                message_id,
+                group_id,
+                group_message_id,
             });
             res.status(201).json(channelMessage);
         }
         catch (error) {
             res
                 .status(500)
-                .json({ message: "Failed to create channel message", error });
+                .json({
+                groupMessage: "Failed to create channel group groupMessage",
+                error,
+            });
         }
     };
     getChannelMessages = async (_req, res) => {
@@ -62,19 +69,26 @@ let ChannelMessageController = class ChannelMessageController {
         catch (error) {
             res
                 .status(500)
-                .json({ message: "Failed to fetch channel messages", error });
+                .json({
+                groupMessage: "Failed to fetch channel group groupMessages",
+                error,
+            });
         }
     };
     getChannelMessageById = async (req, res) => {
         try {
             const id = parseInt(req.params.id, 10);
             if (isNaN(id)) {
-                res.status(400).json({ message: "Invalid channel message ID" });
+                res
+                    .status(400)
+                    .json({ groupMessage: "Invalid channel group groupMessage ID" });
                 return;
             }
             const channelMessage = await this.channelMessageService.getChannelMessageById(id);
             if (!channelMessage) {
-                res.status(404).json({ message: "Channel message not found" });
+                res
+                    .status(404)
+                    .json({ groupMessage: "Channel group groupMessage not found" });
                 return;
             }
             res.status(200).json(channelMessage);
@@ -82,22 +96,25 @@ let ChannelMessageController = class ChannelMessageController {
         catch (error) {
             res
                 .status(500)
-                .json({ message: "Failed to fetch channel message", error });
+                .json({
+                groupMessage: "Failed to fetch channel group groupMessage",
+                error,
+            });
         }
     };
-    getChannelMessagesByChannelId = async (req, res) => {
+    getChannelMessagesByGroupId = async (req, res) => {
         try {
-            const channelId = parseInt(req.params.channelId, 10);
-            if (isNaN(channelId)) {
-                res.status(400).json({ message: "Invalid channel ID" });
+            const groupId = parseInt(req.params.groupId, 10);
+            if (isNaN(groupId)) {
+                res.status(400).json({ groupMessage: "Invalid channel group ID" });
                 return;
             }
-            const channelMessages = await this.channelMessageService.getChannelMessagesByChannelId(channelId);
+            const channelMessages = await this.channelMessageService.getChannelMessagesByGroupId(groupId);
             res.status(200).json(channelMessages);
         }
         catch (error) {
             res.status(500).json({
-                message: "Failed to fetch channel messages by channel id",
+                groupMessage: "Failed to fetch channel group groupMessages by channel group id",
                 error,
             });
         }
@@ -106,30 +123,34 @@ let ChannelMessageController = class ChannelMessageController {
         try {
             const id = parseInt(req.params.id, 10);
             if (isNaN(id)) {
-                res.status(400).json({ message: "Invalid channel message ID" });
+                res
+                    .status(400)
+                    .json({ groupMessage: "Invalid channel group groupMessage ID" });
                 return;
             }
-            const { channel_id, message_id } = req.body;
-            if (channel_id !== undefined) {
-                const channel = await this.channelService.getChannelById(channel_id);
-                if (!channel) {
-                    res.status(404).json({ message: "Channel not found" });
+            const { group_id, group_message_id } = req.body;
+            if (group_id !== undefined) {
+                const group = await this.groupService.getGroupById(group_id);
+                if (!group) {
+                    res.status(404).json({ groupMessage: "Channel group not found" });
                     return;
                 }
             }
-            if (message_id !== undefined) {
-                const message = await this.messageService.getMessageById(message_id);
-                if (!message) {
-                    res.status(404).json({ message: "Message not found" });
+            if (group_message_id !== undefined) {
+                const groupMessage = await this.groupMessageService.getMessageById(group_message_id);
+                if (!groupMessage) {
+                    res.status(404).json({ groupMessage: "GroupMessage not found" });
                     return;
                 }
             }
             const updatedChannelMessage = await this.channelMessageService.updateChannelMessage(id, {
-                channel_id,
-                message_id,
+                group_id,
+                group_message_id,
             });
             if (!updatedChannelMessage) {
-                res.status(404).json({ message: "Channel message not found" });
+                res
+                    .status(404)
+                    .json({ groupMessage: "Channel group groupMessage not found" });
                 return;
             }
             res.status(200).json(updatedChannelMessage);
@@ -137,19 +158,26 @@ let ChannelMessageController = class ChannelMessageController {
         catch (error) {
             res
                 .status(500)
-                .json({ message: "Failed to update channel message", error });
+                .json({
+                groupMessage: "Failed to update channel group groupMessage",
+                error,
+            });
         }
     };
     deleteChannelMessage = async (req, res) => {
         try {
             const id = parseInt(req.params.id, 10);
             if (isNaN(id)) {
-                res.status(400).json({ message: "Invalid channel message ID" });
+                res
+                    .status(400)
+                    .json({ groupMessage: "Invalid channel group groupMessage ID" });
                 return;
             }
             const success = await this.channelMessageService.deleteChannelMessage(id);
             if (!success) {
-                res.status(404).json({ message: "Channel message not found" });
+                res
+                    .status(404)
+                    .json({ groupMessage: "Channel group groupMessage not found" });
                 return;
             }
             res.status(204).send();
@@ -157,14 +185,17 @@ let ChannelMessageController = class ChannelMessageController {
         catch (error) {
             res
                 .status(500)
-                .json({ message: "Failed to delete channel message", error });
+                .json({
+                groupMessage: "Failed to delete channel group groupMessage",
+                error,
+            });
         }
     };
 };
 ChannelMessageController = __decorate([
     (0, tsyringe_1.injectable)(),
     __metadata("design:paramtypes", [channel_message_service_1.default,
-        channel_service_1.default,
-        message_service_1.default])
+        group_service_1.default,
+        group_message_service_1.default])
 ], ChannelMessageController);
 exports.default = ChannelMessageController;

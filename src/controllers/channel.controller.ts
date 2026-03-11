@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import { injectable } from "tsyringe";
 import { CreateChannelRequest } from "@/models/channel.model";
 import ChannelService from "@/services/channel.service";
-import ChannelGroupService from "@/services/channel-group.service";
+import GroupService from "@/services/group.service";
 
 @injectable()
 export default class ChannelController {
   constructor(
     private readonly channelService: ChannelService,
-    private readonly channelGroupService: ChannelGroupService,
+    private readonly groupService: GroupService,
   ) {}
 
   public createChannel = async (
@@ -16,36 +16,16 @@ export default class ChannelController {
     res: Response,
   ): Promise<void> => {
     try {
-      const { channel_group_id, language, chat_id } = req.body;
+      const { language, chat_id } = req.body;
 
-      if (!channel_group_id || !language || !chat_id) {
+      if (!language || !chat_id) {
         res
           .status(400)
-          .json({ message: "Missing channel_group_id, language, or chat_id" });
-        return;
-      }
-
-      const existingChannelGroup =
-        await this.channelGroupService.getChannelGroupById(channel_group_id);
-      if (!existingChannelGroup) {
-        res.status(404).json({ message: "Channel group not found" });
-        return;
-      }
-
-      const existingLanguageUrl =
-        await this.channelService.getChannelByChannelGroupIdAndLanguage(
-          channel_group_id,
-          language,
-        );
-      if (existingLanguageUrl) {
-        res
-          .status(409)
-          .json({ message: "Language already defined for this channel group" });
+          .json({ message: "Missing language, or chat_id" });
         return;
       }
 
       const channel = await this.channelService.createChannel({
-        channel_group_id,
         language,
         chat_id,
       });
@@ -86,18 +66,18 @@ export default class ChannelController {
     }
   };
 
-  public getChannelsByChannelGroupId = async (
+  public getChannelsByGroupId = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
     try {
-      const channelGroupId = parseInt(req.params.channelGroupId as string, 10);
-      if (isNaN(channelGroupId)) {
+      const groupId = parseInt(req.params.groupId as string, 10);
+      if (isNaN(groupId)) {
         res.status(400).json({ message: "Invalid channel group ID" });
         return;
       }
       const channels =
-        await this.channelService.getChannelsByChannelGroupId(channelGroupId);
+        await this.channelService.getChannelsByGroupId(groupId);
       res.status(200).json(channels);
     } catch (error) {
       res.status(500).json({
@@ -114,7 +94,7 @@ export default class ChannelController {
         res.status(400).json({ message: "Invalid channel ID" });
         return;
       }
-      const { channel_group_id, language, chat_id } = req.body;
+      const { group_id, language, chat_id } = req.body;
 
       const existingChannel = await this.channelService.getChannelById(id);
       if (!existingChannel) {
@@ -122,44 +102,9 @@ export default class ChannelController {
         return;
       }
 
-      const targetChannelGroupId =
-        channel_group_id !== undefined
-          ? channel_group_id
-          : existingChannel.channel_group_id;
-      const targetLanguage =
-        language !== undefined ? language : existingChannel.language;
-
-      if (
-        targetChannelGroupId !== existingChannel.channel_group_id ||
-        targetLanguage !== existingChannel.language
-      ) {
-        const duplicate =
-          await this.channelService.getChannelByChannelGroupIdAndLanguage(
-            targetChannelGroupId,
-            targetLanguage,
-          );
-        if (duplicate) {
-          res.status(409).json({
-            message: "Language already defined for this channel group",
-          });
-          return;
-        }
-      }
-
-      if (
-        channel_group_id &&
-        channel_group_id !== existingChannel.channel_group_id
-      ) {
-        const existingChannelGroup =
-          await this.channelGroupService.getChannelGroupById(channel_group_id);
-        if (!existingChannelGroup) {
-          res.status(404).json({ message: "Channel group not found" });
-          return;
-        }
-      }
+      const targetLanguage = language !== undefined ? language : existingChannel.language;
 
       const updatedChannel = await this.channelService.updateChannel(id, {
-        channel_group_id,
         language,
         chat_id,
       });

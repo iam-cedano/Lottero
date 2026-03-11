@@ -20,8 +20,8 @@ router.get(
   channelMessageController.getChannelMessageById,
 );
 router.get(
-  "/channel-group/:channelGroupId/messages",
-  channelMessageController.getChannelMessagesByChannelGroupId,
+  "/group/:groupId/messages",
+  channelMessageController.getChannelMessagesByGroupId,
 );
 router.put(
   "/channel-message/:id",

@@ -8,7 +8,6 @@ const channel_controller_1 = __importDefault(require("../controllers/channel.con
 const container_1 = __importDefault(require("../container"));
 const router = (0, express_1.Router)();
 const channelController = container_1.default.resolve(channel_controller_1.default);
-router.get("/message", channelController.sendMessage);
 router.post("/channel", channelController.createChannel);
 router.get("/channels", channelController.getChannels);
 router.get("/channel/:id", channelController.getChannelById);

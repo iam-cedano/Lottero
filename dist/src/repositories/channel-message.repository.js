@@ -22,12 +22,12 @@ let ChannelMessageRepository = class ChannelMessageRepository extends base_repos
     constructor(pool) {
         super(pool, "channel_messages");
     }
-    async findByChannelId(channelId) {
-        const result = await this.pool.query(`SELECT * FROM ${this.tableName} WHERE channel_id = $1`, [channelId]);
+    async findByGroupId(groupId) {
+        const result = await this.pool.query(`SELECT * FROM ${this.tableName} WHERE group_id = $1`, [groupId]);
         return result.rows;
     }
-    async findByMessageId(messageId) {
-        const result = await this.pool.query(`SELECT * FROM ${this.tableName} WHERE message_id = $1`, [messageId]);
+    async findByGroupMessageId(groupMessageId) {
+        const result = await this.pool.query(`SELECT * FROM ${this.tableName} WHERE group_message_id = $1`, [groupMessageId]);
         return result.rows;
     }
 };

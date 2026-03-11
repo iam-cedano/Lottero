@@ -28,11 +28,11 @@ let ChannelMessageService = class ChannelMessageService {
     async getChannelMessageById(id) {
         return this.channelMessageRepository.findById(id);
     }
-    async getChannelMessagesByChannelId(channelId) {
-        return this.channelMessageRepository.findByChannelId(channelId);
+    async getChannelMessagesByGroupId(groupId) {
+        return this.channelMessageRepository.findByGroupId(groupId);
     }
-    async getChannelMessagesByMessageId(messageId) {
-        return this.channelMessageRepository.findByMessageId(messageId);
+    async getChannelMessagesByGroupMessageId(groupMessageId) {
+        return this.channelMessageRepository.findByGroupMessageId(groupMessageId);
     }
     async updateChannelMessage(id, data) {
         return this.channelMessageRepository.update(id, data);

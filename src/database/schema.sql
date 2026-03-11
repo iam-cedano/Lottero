@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS games (
     status BOOLEAN DEFAULT TRUE
 );
 
--- Channel Groups table
-CREATE TABLE IF NOT EXISTS channel_groups (
+-- Groups table
+CREATE TABLE IF NOT EXISTS groups (
     id SERIAL PRIMARY KEY,
     casino_id INTEGER NOT NULL REFERENCES casinos(id),
     game_id INTEGER NOT NULL REFERENCES games(id),
@@ -30,17 +30,23 @@ CREATE TABLE IF NOT EXISTS channel_groups (
 -- Channels table
 CREATE TABLE IF NOT EXISTS channels (
     id SERIAL PRIMARY KEY,
-    channel_group_id INTEGER NOT NULL REFERENCES channel_groups(id),
     language VARCHAR(10) NOT NULL,
     chat_id VARCHAR(32) NOT NULL,
-    status BOOLEAN DEFAULT TRUE,
-    UNIQUE(channel_group_id, language)
+    status BOOLEAN DEFAULT TRUE
 );
 
--- Channel Group Statistics table
-CREATE TABLE IF NOT EXISTS channel_group_statistics (
+-- Channels Groups pivot table
+CREATE TABLE IF NOT EXISTS channels_groups (
     id SERIAL PRIMARY KEY,
-    channel_group_id INTEGER NOT NULL REFERENCES channel_groups(id) ON DELETE CASCADE,
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    UNIQUE(group_id, channel_id)
+);
+
+-- Group Statistics table
+CREATE TABLE IF NOT EXISTS group_statistics (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     the_date DATE NOT NULL,
     data JSONB NOT NULL
 );
@@ -48,7 +54,7 @@ CREATE TABLE IF NOT EXISTS channel_group_statistics (
 -- Group Messages table
 CREATE TABLE IF NOT EXISTS group_messages (
     id SERIAL PRIMARY KEY,
-    channel_group_id INTEGER NOT NULL REFERENCES channel_groups(id),
+    group_id INTEGER NOT NULL REFERENCES groups(id),
     data JSONB,
     created DATE
 );

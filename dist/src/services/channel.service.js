@@ -19,18 +19,26 @@ let ChannelService = class ChannelService {
     constructor(channelRepository) {
         this.channelRepository = channelRepository;
     }
-    async sendMessage(_channel, _data) { }
     async createChannel(data) {
         return this.channelRepository.create(data);
     }
     async getChannels() {
-        return this.channelRepository.findAll();
+        return this.channelRepository.findAllWithGroup();
     }
     async getChannelById(id) {
-        return this.channelRepository.findById(id);
+        return this.channelRepository.findByIdWithGroup(id);
+    }
+    async getChannelsByGroupId(groupId) {
+        return this.channelRepository.findByGroupId(groupId);
+    }
+    async getChannelByGroupIdAndLanguage(groupId, language) {
+        return this.channelRepository.findByGroupIdAndLanguage(groupId, language);
     }
     async updateChannel(id, data) {
-        return this.channelRepository.update(id, data);
+        const updated = await this.channelRepository.update(id, data);
+        if (!updated)
+            return null;
+        return this.getChannelById(id);
     }
     async deleteChannel(id) {
         return this.channelRepository.delete(id);
