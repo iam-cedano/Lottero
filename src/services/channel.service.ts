@@ -1,11 +1,12 @@
-import { injectable } from "tsyringe";
-import ChannelRepository from "@/repositories/channel.repository";
+import { inject, injectable } from "tsyringe";
 import { Channel } from "@/entities/channel.entity";
+import ChannelRepository from "@/repositories/channel.repository";
 
 @injectable()
 export default class ChannelService {
   constructor(
-    private readonly channelRepository: ChannelRepository
+    @inject(ChannelRepository)
+    private readonly channelRepository: ChannelRepository,
   ) {}
 
   async createChannel(data: Partial<Channel>): Promise<Channel> {
@@ -20,9 +21,7 @@ export default class ChannelService {
     return this.channelRepository.findByIdWithGroup(id);
   }
 
-  async getChannelsByGroupId(
-    groupId: number,
-  ): Promise<Channel[]> {
+  async getChannelsByGroupId(groupId: number): Promise<Channel[]> {
     return this.channelRepository.findByGroupId(groupId);
   }
 
@@ -30,10 +29,7 @@ export default class ChannelService {
     groupId: number,
     language: string,
   ): Promise<Channel | null> {
-    return this.channelRepository.findByGroupIdAndLanguage(
-      groupId,
-      language,
-    );
+    return this.channelRepository.findByGroupIdAndLanguage(groupId, language);
   }
 
   async updateChannel(

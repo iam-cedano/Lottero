@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { CreateCasinoRequest } from "@/models/casino.model";
 import CasinoService from "@/services/casino.service";
 import UrlParser from "@/utils/url-parser.util";
@@ -7,7 +7,9 @@ import ValidationException from "@/exceptions/validation.exception";
 
 @injectable()
 export default class CasinoController {
-  constructor(private readonly casinoService: CasinoService) {}
+  constructor(
+    @inject(CasinoService) private readonly casinoService: CasinoService,
+  ) {}
 
   public createCasino = async (
     req: Request<any, any, CreateCasinoRequest>,

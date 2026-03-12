@@ -1,10 +1,13 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import CasinoRepository from "@/repositories/casino.repository";
 import { Casino } from "@/entities/casino.entity";
 
 @injectable()
 export default class CasinoService {
-  constructor(private readonly casinoRepository: CasinoRepository) {}
+  constructor(
+    @inject(CasinoRepository)
+    private readonly casinoRepository: CasinoRepository,
+  ) {}
 
   async createCasino(data: Partial<Casino>): Promise<Casino> {
     return this.casinoRepository.create(data);

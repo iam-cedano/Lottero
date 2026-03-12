@@ -1,4 +1,4 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import GroupRepository from "@/repositories/group.repository";
 import { Group } from "@/entities/group.entity";
 import ChannelsGroupsRepository from "@/repositories/channels-groups.repository";
@@ -9,8 +9,10 @@ import { Channel } from "@/entities/channel.entity";
 @injectable()
 export default class GroupService {
   constructor(
-    private readonly groupRepository: GroupRepository,
+    @inject(GroupRepository) private readonly groupRepository: GroupRepository,
+    @inject(ChannelsGroupsRepository)
     private readonly channelsGroupsRepository: ChannelsGroupsRepository,
+    @inject(ChannelRepository)
     private readonly channelRepository: ChannelRepository,
   ) {}
 
@@ -18,20 +20,33 @@ export default class GroupService {
     throw new Error("Not implemented yet.");
   }
 
-  async addChannelToGroup(groupId: number, channelId: number): Promise<ChannelsGroups> {
+  async addChannelToGroup(
+    groupId: number,
+    channelId: number,
+  ): Promise<ChannelsGroups> {
     return this.channelsGroupsRepository.create({
       group_id: groupId,
-      channel_id: channelId
+      channel_id: channelId,
     });
   }
 
   async isChannelInGroup(groupId: number, channelId: number): Promise<boolean> {
-    const assignment = await this.channelsGroupsRepository.findByGroupIdAndChannelId(groupId, channelId);
+    const assignment =
+      await this.channelsGroupsRepository.findByGroupIdAndChannelId(
+        groupId,
+        channelId,
+      );
     return assignment !== null;
   }
 
-  async removeChannelFromGroup(groupId: number, channelId: number): Promise<boolean> {
-    return this.channelsGroupsRepository.deleteByGroupIdAndChannelId(groupId, channelId);
+  async removeChannelFromGroup(
+    groupId: number,
+    channelId: number,
+  ): Promise<boolean> {
+    return this.channelsGroupsRepository.deleteByGroupIdAndChannelId(
+      groupId,
+      channelId,
+    );
   }
 
   async createGroup(data: Partial<Group>): Promise<Group> {
@@ -50,10 +65,7 @@ export default class GroupService {
     return this.groupRepository.findById(id);
   }
 
-  async updateGroup(
-    id: number,
-    data: Partial<Group>,
-  ): Promise<Group | null> {
+  async updateGroup(id: number, data: Partial<Group>): Promise<Group | null> {
     return this.groupRepository.update(id, data);
   }
 

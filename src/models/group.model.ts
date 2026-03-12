@@ -1,6 +1,5 @@
 export interface MessageRequest {
-  group: string;
-  action: string;
+  channel: string;
   data: object;
 }
 

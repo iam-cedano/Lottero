@@ -1,6 +1,6 @@
 import { Router } from "express";
-import ChannelController from "@/controllers/channel.controller";
 import container from "@/container";
+import ChannelController from "@/controllers/channel.controller";
 
 const router = Router();
 const channelController = container.resolve(ChannelController);

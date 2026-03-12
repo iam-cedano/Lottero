@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import {
   CreateGroupStatisticRequest,
   UpdateGroupStatisticRequest,
@@ -10,8 +10,9 @@ import GroupService from "@/services/group.service";
 @injectable()
 export default class GroupStatisticController {
   constructor(
+    @inject(GroupStatisticService)
     private readonly groupStatisticService: GroupStatisticService,
-    private readonly groupService: GroupService,
+    @inject(GroupService) private readonly groupService: GroupService,
   ) {}
 
   public createGroupStatistic = async (
@@ -28,8 +29,7 @@ export default class GroupStatisticController {
         return;
       }
 
-      const group =
-        await this.groupService.getGroupById(group_id);
+      const group = await this.groupService.getGroupById(group_id);
       if (!group) {
         res.status(404).json({ message: "Channel group not found" });
         return;
@@ -76,9 +76,7 @@ export default class GroupStatisticController {
         return;
       }
       const groupStatistic =
-        await this.groupStatisticService.getGroupStatisticById(
-          id,
-        );
+        await this.groupStatisticService.getGroupStatisticById(id);
       if (!groupStatistic) {
         res.status(404).json({ message: "Channel group statistic not found" });
         return;
@@ -105,8 +103,7 @@ export default class GroupStatisticController {
         req.body as UpdateGroupStatisticRequest;
 
       if (group_id) {
-        const group =
-          await this.groupService.getGroupById(group_id);
+        const group = await this.groupService.getGroupById(group_id);
         if (!group) {
           res.status(404).json({ message: "Channel group not found" });
           return;
@@ -114,16 +111,12 @@ export default class GroupStatisticController {
       }
 
       const updateData: any = {};
-      if (group_id !== undefined)
-        updateData.group_id = group_id;
+      if (group_id !== undefined) updateData.group_id = group_id;
       if (the_date !== undefined) updateData.the_date = new Date(the_date);
       if (data !== undefined) updateData.data = data;
 
       const updatedGroupStatistic =
-        await this.groupStatisticService.updateGroupStatistic(
-          id,
-          updateData,
-        );
+        await this.groupStatisticService.updateGroupStatistic(id, updateData);
       if (!updatedGroupStatistic) {
         res.status(404).json({ message: "Channel group statistic not found" });
         return;
@@ -146,8 +139,7 @@ export default class GroupStatisticController {
         res.status(400).json({ message: "Invalid channel group statistic ID" });
         return;
       }
-      const success =
-        await this.groupStatisticService.deleteGroupStatistic(id);
+      const success = await this.groupStatisticService.deleteGroupStatistic(id);
       if (!success) {
         res.status(404).json({ message: "Channel group statistic not found" });
         return;

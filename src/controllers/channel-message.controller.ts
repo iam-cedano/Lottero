@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { CreateChannelMessageRequest } from "@/models/channel-message.model";
 import ChannelMessageService from "@/services/channel-message.service";
 import GroupService from "@/services/group.service";
@@ -8,8 +8,11 @@ import GroupMessageService from "@/services/group-message.service";
 @injectable()
 export default class ChannelMessageController {
   constructor(
+    @inject(ChannelMessageService)
     private readonly channelMessageService: ChannelMessageService,
+    @inject(GroupService)
     private readonly groupService: GroupService,
+    @inject(GroupMessageService)
     private readonly groupMessageService: GroupMessageService,
   ) {}
 
@@ -21,16 +24,13 @@ export default class ChannelMessageController {
       const { group_id, group_message_id } = req.body;
 
       if (!group_id || !group_message_id) {
-        res
-          .status(400)
-          .json({
-            groupMessage: "Missing group_id or group_message_id",
-          });
+        res.status(400).json({
+          groupMessage: "Missing group_id or group_message_id",
+        });
         return;
       }
 
-      const group =
-        await this.groupService.getGroupById(group_id);
+      const group = await this.groupService.getGroupById(group_id);
       if (!group) {
         res.status(404).json({ groupMessage: "Channel group not found" });
         return;
@@ -51,12 +51,10 @@ export default class ChannelMessageController {
 
       res.status(201).json(channelMessage);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          groupMessage: "Failed to create channel group groupMessage",
-          error,
-        });
+      res.status(500).json({
+        groupMessage: "Failed to create channel group groupMessage",
+        error,
+      });
     }
   };
 
@@ -69,12 +67,10 @@ export default class ChannelMessageController {
         await this.channelMessageService.getChannelMessages();
       res.status(200).json(channelMessages);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          groupMessage: "Failed to fetch channel group groupMessages",
-          error,
-        });
+      res.status(500).json({
+        groupMessage: "Failed to fetch channel group groupMessages",
+        error,
+      });
     }
   };
 
@@ -100,12 +96,10 @@ export default class ChannelMessageController {
       }
       res.status(200).json(channelMessage);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          groupMessage: "Failed to fetch channel group groupMessage",
-          error,
-        });
+      res.status(500).json({
+        groupMessage: "Failed to fetch channel group groupMessage",
+        error,
+      });
     }
   };
 
@@ -120,9 +114,7 @@ export default class ChannelMessageController {
         return;
       }
       const channelMessages =
-        await this.channelMessageService.getChannelMessagesByGroupId(
-          groupId,
-        );
+        await this.channelMessageService.getChannelMessagesByGroupId(groupId);
       res.status(200).json(channelMessages);
     } catch (error) {
       res.status(500).json({
@@ -148,8 +140,7 @@ export default class ChannelMessageController {
       const { group_id, group_message_id } = req.body;
 
       if (group_id !== undefined) {
-        const group =
-          await this.groupService.getGroupById(group_id);
+        const group = await this.groupService.getGroupById(group_id);
         if (!group) {
           res.status(404).json({ groupMessage: "Channel group not found" });
           return;
@@ -178,12 +169,10 @@ export default class ChannelMessageController {
       }
       res.status(200).json(updatedChannelMessage);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          groupMessage: "Failed to update channel group groupMessage",
-          error,
-        });
+      res.status(500).json({
+        groupMessage: "Failed to update channel group groupMessage",
+        error,
+      });
     }
   };
 
@@ -208,12 +197,10 @@ export default class ChannelMessageController {
       }
       res.status(204).send();
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          groupMessage: "Failed to delete channel group groupMessage",
-          error,
-        });
+      res.status(500).json({
+        groupMessage: "Failed to delete channel group groupMessage",
+        error,
+      });
     }
   };
 }

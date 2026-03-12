@@ -1,10 +1,13 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import GroupMessageRepository from "@/repositories/group-message.repository";
 import { GroupMessage } from "@/entities/group-message.entity";
 
 @injectable()
 export default class GroupMessageService {
-  constructor(private readonly groupMessageRepository: GroupMessageRepository) {}
+  constructor(
+    @inject(GroupMessageRepository)
+    private readonly groupMessageRepository: GroupMessageRepository,
+  ) {}
 
   async createGroupMessage(data: Partial<GroupMessage>): Promise<GroupMessage> {
     return this.groupMessageRepository.create(data);

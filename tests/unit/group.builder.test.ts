@@ -1,14 +1,12 @@
 import CasinoException from "@/exceptions/casino.exception";
 import GameException from "@/exceptions/game.exception";
-import GroupBuilder from "@/services/group.builder";
+import GroupBuilder from "@/builders/group.builder";
 import { describe, expect, it } from "vitest";
 
 describe("Group Builder", () => {
   it("should throw an exception when the casino is not found", () => {
     expect(() => {
-      const channelGroupService = GroupBuilder.getGroup(
-        "non_existent_casino",
-      );
+      const channelGroupService = GroupBuilder.getGroup("non_existent_casino");
     }).toThrow(CasinoException);
   });
 

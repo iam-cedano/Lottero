@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { CreateChannelRequest } from "@/models/channel.model";
 import ChannelService from "@/services/channel.service";
 import GroupService from "@/services/group.service";
@@ -7,8 +7,8 @@ import GroupService from "@/services/group.service";
 @injectable()
 export default class ChannelController {
   constructor(
-    private readonly channelService: ChannelService,
-    private readonly groupService: GroupService,
+    @inject(ChannelService) private readonly channelService: ChannelService,
+    @inject(GroupService) private readonly groupService: GroupService,
   ) {}
 
   public createChannel = async (
@@ -19,9 +19,7 @@ export default class ChannelController {
       const { language, chat_id } = req.body;
 
       if (!language || !chat_id) {
-        res
-          .status(400)
-          .json({ message: "Missing language, or chat_id" });
+        res.status(400).json({ message: "Missing language, or chat_id" });
         return;
       }
 
@@ -76,8 +74,7 @@ export default class ChannelController {
         res.status(400).json({ message: "Invalid channel group ID" });
         return;
       }
-      const channels =
-        await this.channelService.getChannelsByGroupId(groupId);
+      const channels = await this.channelService.getChannelsByGroupId(groupId);
       res.status(200).json(channels);
     } catch (error) {
       res.status(500).json({
@@ -102,7 +99,8 @@ export default class ChannelController {
         return;
       }
 
-      const targetLanguage = language !== undefined ? language : existingChannel.language;
+      const targetLanguage =
+        language !== undefined ? language : existingChannel.language;
 
       const updatedChannel = await this.channelService.updateChannel(id, {
         language,

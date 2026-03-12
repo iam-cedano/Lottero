@@ -1,10 +1,11 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import ChannelMessageRepository from "@/repositories/channel-message.repository";
 import { ChannelMessage } from "@/entities/channel-message.entity";
 
 @injectable()
 export default class ChannelMessageService {
   constructor(
+    @inject(ChannelMessageRepository)
     private readonly channelMessageRepository: ChannelMessageRepository,
   ) {}
 
@@ -18,18 +19,14 @@ export default class ChannelMessageService {
     return this.channelMessageRepository.findAll();
   }
 
-  async getChannelMessageById(
-    id: number,
-  ): Promise<ChannelMessage | null> {
+  async getChannelMessageById(id: number): Promise<ChannelMessage | null> {
     return this.channelMessageRepository.findById(id);
   }
 
   async getChannelMessagesByGroupId(
     groupId: number,
   ): Promise<ChannelMessage[]> {
-    return this.channelMessageRepository.findByGroupId(
-      groupId,
-    );
+    return this.channelMessageRepository.findByGroupId(groupId);
   }
 
   async getChannelMessagesByGroupMessageId(

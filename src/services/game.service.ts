@@ -1,10 +1,12 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import GameRepository from "@/repositories/game.repository";
 import { Game } from "@/entities/game.entity";
 
 @injectable()
 export default class GameService {
-  constructor(private readonly gameRepository: GameRepository) {}
+  constructor(
+    @inject(GameRepository) private readonly gameRepository: GameRepository,
+  ) {}
 
   async createGame(data: Partial<Game>): Promise<Game> {
     return this.gameRepository.create(data);

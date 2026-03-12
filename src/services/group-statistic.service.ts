@@ -1,10 +1,11 @@
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import GroupStatisticRepository from "@/repositories/group-statistic.repository";
 import { GroupStatistic } from "@/entities/group-statistic.entity";
 
 @injectable()
 export default class GroupStatisticService {
   constructor(
+    @inject(GroupStatisticRepository)
     private readonly groupStatisticRepository: GroupStatisticRepository,
   ) {}
 
@@ -18,9 +19,7 @@ export default class GroupStatisticService {
     return this.groupStatisticRepository.findAll();
   }
 
-  async getGroupStatisticById(
-    id: number,
-  ): Promise<GroupStatistic | null> {
+  async getGroupStatisticById(id: number): Promise<GroupStatistic | null> {
     return this.groupStatisticRepository.findById(id);
   }
 
@@ -35,21 +34,14 @@ export default class GroupStatisticService {
     return this.groupStatisticRepository.delete(id);
   }
 
-  async getGroupStatisticByGroupId(
-    groupId: number,
-  ): Promise<GroupStatistic[]> {
-    return this.groupStatisticRepository.findByGroupId(
-      groupId,
-    );
+  async getGroupStatisticByGroupId(groupId: number): Promise<GroupStatistic[]> {
+    return this.groupStatisticRepository.findByGroupId(groupId);
   }
 
   async getGroupStatisticByGroupAndDate(
     groupId: number,
     date: Date,
   ): Promise<GroupStatistic | null> {
-    return this.groupStatisticRepository.findByGroupAndDate(
-      groupId,
-      date,
-    );
+    return this.groupStatisticRepository.findByGroupAndDate(groupId, date);
   }
 }

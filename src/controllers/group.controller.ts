@@ -1,9 +1,6 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
-import {
-  MessageRequest,
-  CreateGroupRequest,
-} from "@/models/group.model";
+import { inject, injectable } from "tsyringe";
+import { MessageRequest, CreateGroupRequest } from "@/models/group.model";
 import GroupService from "@/services/group.service";
 import CasinoService from "@/services/casino.service";
 import GameService from "@/services/game.service";
@@ -12,15 +9,22 @@ import ChannelService from "@/services/channel.service";
 @injectable()
 export default class GroupController {
   constructor(
-    private readonly groupService: GroupService,
-    private readonly casinoService: CasinoService,
-    private readonly gameService: GameService,
-    private readonly channelService: ChannelService,
+    @inject(GroupService) private readonly groupService: GroupService,
+    @inject(CasinoService) private readonly casinoService: CasinoService,
+    @inject(GameService) private readonly gameService: GameService,
+    @inject(ChannelService) private readonly channelService: ChannelService,
   ) {}
 
-  public sendMessage(req: Request<any, any, MessageRequest>, _res: Response) {
-    const { group, data } = req.body;
-  }
+  public sendMessage = async (
+    req: Request<any, any, MessageRequest>,
+    res: Response,
+  ) => {
+    const { channel, data } = req.body;
+
+    
+
+    res.status(201).json({ message: "Message sent successfully" });
+  };
 
   public addChannelToGroup = async (
     req: Request,
@@ -45,19 +49,26 @@ export default class GroupController {
         return;
       }
 
-      const existingChannel = await this.channelService.getChannelById(channel_id);
+      const existingChannel =
+        await this.channelService.getChannelById(channel_id);
       if (!existingChannel) {
         res.status(404).json({ message: "Channel not found" });
         return;
       }
 
-      const isAlreadyInGroup = await this.groupService.isChannelInGroup(id, channel_id);
+      const isAlreadyInGroup = await this.groupService.isChannelInGroup(
+        id,
+        channel_id,
+      );
       if (isAlreadyInGroup) {
         res.status(400).json({ message: "Channel is already in this group" });
         return;
       }
 
-      const assignment = await this.groupService.addChannelToGroup(id, channel_id);
+      const assignment = await this.groupService.addChannelToGroup(
+        id,
+        channel_id,
+      );
       res.status(201).json(assignment);
     } catch (error) {
       res
@@ -89,19 +100,25 @@ export default class GroupController {
         return;
       }
 
-      const existingChannel = await this.channelService.getChannelById(channel_id);
+      const existingChannel =
+        await this.channelService.getChannelById(channel_id);
       if (!existingChannel) {
         res.status(404).json({ message: "Channel not found" });
         return;
       }
 
-      const success = await this.groupService.removeChannelFromGroup(id, channel_id);
+      const success = await this.groupService.removeChannelFromGroup(
+        id,
+        channel_id,
+      );
       if (!success) {
         res.status(404).json({ message: "Channel not found in this group" });
         return;
       }
 
-      res.status(200).json({ message: "Channel removed from group successfully" });
+      res
+        .status(200)
+        .json({ message: "Channel removed from group successfully" });
     } catch (error) {
       res
         .status(500)
@@ -151,10 +168,7 @@ export default class GroupController {
     }
   };
 
-  public getGroups = async (
-    _req: Request,
-    res: Response,
-  ): Promise<void> => {
+  public getGroups = async (_req: Request, res: Response): Promise<void> => {
     try {
       const groups = await this.groupService.getGroups();
       const groupsWithChannels = await Promise.all(
@@ -174,39 +188,32 @@ export default class GroupController {
     }
   };
 
-  public getGroupById = async (
-    req: Request,
-    res: Response,
-  ): Promise<void> => {
+  public getGroupById = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
       if (isNaN(id)) {
         res.status(400).json({ message: "Invalid channel group ID" });
         return;
       }
-      const group =
-        await this.groupService.getGroupById(id);
+      const group = await this.groupService.getGroupById(id);
       if (!group) {
         res.status(404).json({ message: "Channel group not found" });
         return;
       }
-      
+
       const channels = await this.groupService.getGroupChannels(group.id);
       const groupWithChannels = {
         ...group,
         channels,
       };
-      
+
       res.status(200).json(groupWithChannels);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch channel group", error });
     }
   };
 
-  public updateGroup = async (
-    req: Request,
-    res: Response,
-  ): Promise<void> => {
+  public updateGroup = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
       if (isNaN(id)) {
@@ -232,13 +239,12 @@ export default class GroupController {
         return;
       }
 
-      const updatedGroup =
-        await this.groupService.updateGroup(id, {
-          casino_id,
-          game_id,
-          strategy,
-          created: created ? new Date(created) : undefined,
-        });
+      const updatedGroup = await this.groupService.updateGroup(id, {
+        casino_id,
+        game_id,
+        strategy,
+        created: created ? new Date(created) : undefined,
+      });
       if (!updatedGroup) {
         res.status(404).json({ message: "Channel group not found" });
         return;
@@ -251,10 +257,7 @@ export default class GroupController {
     }
   };
 
-  public deleteGroup = async (
-    req: Request,
-    res: Response,
-  ): Promise<void> => {
+  public deleteGroup = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id as string, 10);
       if (isNaN(id)) {

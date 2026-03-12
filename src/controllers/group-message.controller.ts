@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import {
   CreateGroupMessageRequest,
   UpdateGroupMessageRequest,
@@ -8,7 +8,10 @@ import GroupMessageService from "@/services/group-message.service";
 
 @injectable()
 export default class GroupMessageController {
-  constructor(private readonly groupMessageService: GroupMessageService) {}
+  constructor(
+    @inject(GroupMessageService)
+    private readonly groupMessageService: GroupMessageService,
+  ) {}
 
   public createGroupMessage = async (
     req: Request<any, any, CreateGroupMessageRequest>,
@@ -83,8 +86,7 @@ export default class GroupMessageController {
         res.status(400).json({ groupMessage: "Invalid groupMessage ID" });
         return;
       }
-      const { group_id, data, created }: UpdateGroupMessageRequest =
-        req.body;
+      const { group_id, data, created }: UpdateGroupMessageRequest = req.body;
 
       const updatedGroupMessage =
         await this.groupMessageService.updateGroupMessage(id, {

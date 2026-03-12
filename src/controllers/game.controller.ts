@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { CreateGameRequest } from "@/models/game.model";
 import GameService from "@/services/game.service";
 import ValidationException from "@/exceptions/validation.exception";
 
 @injectable()
 export default class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(@inject(GameService) private readonly gameService: GameService) {}
 
   public createGame = async (
     req: Request<any, any, CreateGameRequest>,
