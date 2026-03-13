@@ -1,6 +1,7 @@
 export enum MessageEnum {
   BROADCAST = "broadcast",
-  GROUP = "group",
+  GAME = "game",
+  STRATEGY = "strategy",
 }
 
 export default MessageEnum;

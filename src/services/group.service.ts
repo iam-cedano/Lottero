@@ -5,6 +5,9 @@ import ChannelsGroupsRepository from "@/repositories/channels-groups.repository"
 import { ChannelsGroups } from "@/entities/channels-groups.entity";
 import ChannelRepository from "@/repositories/channel.repository";
 import { Channel } from "@/entities/channel.entity";
+import GroupDomain from "@/domains/group.domain";
+import { MessageData } from "@/models/group.model";
+
 
 @injectable()
 export default class GroupService {
@@ -16,8 +19,20 @@ export default class GroupService {
     private readonly channelRepository: ChannelRepository,
   ) {}
 
-  async sendMessage(_group: string, _data: object): Promise<void> {
-    throw new Error("Not implemented yet.");
+  async sendMessage(channel: string, data: MessageData): Promise<boolean> {
+    if (!GroupDomain.IsMessageValid({ channel, data })) {
+      return false;
+    }
+
+    const reportingInstance = GroupDomain.GetReportingInstance(channel);
+
+    if (!reportingInstance) {
+      return false;
+    }
+
+    await reportingInstance.sendMessage(data);
+
+    return true;
   }
 
   async addChannelToGroup(

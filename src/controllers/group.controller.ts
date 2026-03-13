@@ -19,11 +19,33 @@ export default class GroupController {
     req: Request<any, any, MessageRequest>,
     res: Response,
   ) => {
-    const { channel, data } = req.body;
+    try {
+      const { channel, data } = req.body;
 
-    
+      if (channel == undefined) {
+        res.status(400).json({ message: "Channel is required" });
 
-    res.status(201).json({ message: "Message sent successfully" });
+        return;
+      }
+
+      if (data == undefined) {
+        res.status(400).json({ message: "Data is required" });
+
+        return;
+      }
+
+      const success = await this.groupService.sendMessage(channel, data);
+
+      if (!success) {
+        res.status(400).json({ message: "Failed to send message: Invalid channel or data" });
+
+        return;
+      }
+
+      res.status(201).send({ message: "Message sent successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to send message", error });
+    }
   };
 
   public addChannelToGroup = async (

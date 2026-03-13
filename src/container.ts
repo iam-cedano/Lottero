@@ -1,11 +1,19 @@
 import { container } from "tsyringe";
 import { pool } from "@/database";
-import OneWinBroadcastService from "@/services/groups/OneWinGroups.service";
-import OneWinAviatorService from "@/services/games/aviator/OneWin.simple-strategy.service";
+
+import OneWinAviators from "@/services/strategies/onewin.aviators.namespace";
+import OneWinBroadcasts from "@/services/broadcasts/onewin.broadcasts.namespace";
+import OneWinGames from "./services/games/onewin.games.namespace";
 
 container.register("PgPool", { useValue: pool });
 
-container.register("one_win_broadcast", { useClass: OneWinBroadcastService });
-container.register("one_win_aviator", { useClass: OneWinAviatorService });
+container.registerSingleton("onewin", OneWinBroadcasts.GlobalService);
+
+container.registerSingleton("onewin-aviator", OneWinGames.Aviator);
+
+container.registerSingleton(
+  "onewin-aviator-simple_strategy",
+  OneWinAviators.SimpleStrategyService,
+);
 
 export default container;

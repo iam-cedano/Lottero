@@ -3,7 +3,7 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 
 describe("Group Routes", () => {
-  it("Should return 200 POST /message", async () => {
+  it("Should return 201 POST /message", async () => {
     const response = await request(app)
       .post("/message")
       .send({
@@ -12,6 +12,7 @@ describe("Group Routes", () => {
       })
       .type("application/json");
 
+    expect(response.status).toBe(201);
     expect(response.body).toEqual({
       message: "Message sent successfully",
     });

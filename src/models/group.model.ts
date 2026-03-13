@@ -1,16 +1,21 @@
+export interface MessageData {
+  command?: string;
+  [key: string]: unknown;
+}
+
 export interface MessageRequest {
-  channel: string;
-  data: object;
+  channel?: string;
+  data?: MessageData;
 }
 
 export interface EditMessageRequest {
-  group: string;
-  data: object;
+  channel?: string;
+  data?: MessageData;
 }
 
 export interface DeleteMessageRequest {
-  group: string;
-  data: object;
+  channel?: string;
+  data?: MessageData;
 }
 
 export interface CreateGroupRequest {

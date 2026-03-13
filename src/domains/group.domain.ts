@@ -1,19 +1,117 @@
 import MessageEnum from "@/enums/message.enum";
-import MessageException from "@/exceptions/message.exception";
+import { ChannelFormatException } from "@/exceptions/group.exception";
+import { MessageRequest } from "@/models/group.model";
+import ReportingServiceAbstract from "@/services/reporting.service.abstract";
+import { container } from "tsyringe";
 
 export default class GroupDomain {
-  public static getMessageType(message: string): MessageEnum {
-    const [casino, game, strategy] = message.split("-");
+  /**
+   * Get the type of message to send.
+   * There are three types of messages:
+   *  - BROADCAST: when the message is sent to all channels from a casino.
+   *  - GAME: when the message is sent to a specific group of channels from a casino's game.
+   * @param channel where the message will be sent. Format: casino-game-strategy
+   * @returns MessageEnum | undefined
+   */
+  public static GetMessageType(channel: string): MessageEnum | undefined {
+    const [casino, game, strategy] = channel.split("-");
 
-    if (
-      casino == undefined ||
-      casino == "" ||
-      game == undefined ||
-      game == ""
-    ) {
-      throw new MessageException("Casino or game is undefined");
+    if (channel == undefined || channel == "") {
+      return undefined;
     }
 
-    return MessageEnum.GROUP;
+    if (!GroupDomain.CheckChannelFormat(channel)) {
+      return undefined;
+    }
+
+    if (casino == undefined || casino == "") {
+      return undefined;
+    }
+
+    if (game == undefined || game == "") {
+      return MessageEnum.BROADCAST;
+    }
+
+    if (strategy == undefined || strategy == "") {
+      return MessageEnum.GAME;
+    }
+
+    return MessageEnum.STRATEGY;
+  }
+
+  /**
+   * Validate if the request sent has the proper schema.
+   * @param request request to validate
+   * @returns boolean
+   */
+  public static IsMessageValid(request: MessageRequest): boolean {
+    const { channel, data } = request;
+
+    if (channel == undefined || channel == "") {
+      return false;
+    }
+
+    if (data == undefined || Object.keys(data).length === 0) {
+      return false;
+    }
+
+    if (!GroupDomain.CheckChannelFormat(channel)) {
+      return false;
+    }
+
+    if (!GroupDomain.CheckDataFormat(data)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Get the group instance.
+   * @param channel channel to get the instance from
+   * @returns ReportingService
+   */
+  public static GetReportingInstance(
+    channel: string,
+  ): ReportingServiceAbstract | undefined {
+    try {
+      if (container.isRegistered(channel)) {
+        return container.resolve<ReportingServiceAbstract>(channel);
+      }
+
+      const [casino, game] = channel.split("-");
+
+      if (game && container.isRegistered(`${casino}-${game}`)) {
+        return container.resolve<ReportingServiceAbstract>(`${casino}-${game}`);
+      }
+
+      if (container.isRegistered(casino)) {
+        return container.resolve<ReportingServiceAbstract>(casino);
+      }
+
+      return undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Check if the channel format is valid.
+   * @param channel channel to check
+   * @returns boolean
+   */
+  private static CheckChannelFormat(channel: string): boolean {
+    const regex = /^\w+(-\w+(-\w+)?)?$/;
+
+    return regex.test(channel);
+  }
+
+  /**
+   * Check if the data format is valid.
+   * @param data data to check
+   * @returns boolean
+   */
+  private static CheckDataFormat(data: Record<string, unknown>): boolean {
+    return data["command"] != undefined && data["command"] != "";
   }
 }
