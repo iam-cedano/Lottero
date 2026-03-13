@@ -12,6 +12,8 @@ namespace OneWinAviators {
       @inject(GroupRepository) private groupRepo: GroupRepository,
     ) {
       super();
+
+      console.info("OneWinAviators loaded");
     }
 
     public async sendMessage(_data: MessageData): Promise<void> {

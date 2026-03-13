@@ -12,6 +12,8 @@ namespace OneWinGames {
       @inject(GroupRepository) private groupRepo: GroupRepository,
     ) {
       super();
+
+      console.info("OneWinGames loaded");
     }
 
     public async sendMessage(_data: MessageData): Promise<void> {

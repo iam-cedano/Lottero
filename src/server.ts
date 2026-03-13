@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import app from "@/app";
 import { config } from "@/config";
+import "@/container";
 
 const PORT = config.port;
 

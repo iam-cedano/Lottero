@@ -16,4 +16,8 @@ container.registerSingleton(
   OneWinAviators.SimpleStrategyService,
 );
 
+container.resolve("onewin");
+container.resolve("onewin-aviator");
+container.resolve("onewin-aviator-simple_strategy");
+
 export default container;

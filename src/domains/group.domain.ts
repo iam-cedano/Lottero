@@ -74,25 +74,7 @@ export default class GroupDomain {
   public static GetReportingInstance(
     channel: string,
   ): ReportingServiceAbstract | undefined {
-    try {
-      if (container.isRegistered(channel)) {
-        return container.resolve<ReportingServiceAbstract>(channel);
-      }
-
-      const [casino, game] = channel.split("-");
-
-      if (game && container.isRegistered(`${casino}-${game}`)) {
-        return container.resolve<ReportingServiceAbstract>(`${casino}-${game}`);
-      }
-
-      if (container.isRegistered(casino)) {
-        return container.resolve<ReportingServiceAbstract>(casino);
-      }
-
-      return undefined;
-    } catch {
-      return undefined;
-    }
+    return container.resolve<ReportingServiceAbstract>(channel);
   }
 
   /**

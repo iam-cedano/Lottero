@@ -12,6 +12,8 @@ namespace OneWinBroadcasts {
       @inject(GroupRepository) private groupRepo: GroupRepository,
     ) {
       super();
+
+      console.info("OneWinBroadcasts loaded");
     }
 
     public async sendMessage(_data: MessageData): Promise<void> {
