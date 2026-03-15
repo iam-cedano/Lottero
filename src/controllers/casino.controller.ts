@@ -12,7 +12,7 @@ export default class CasinoController {
   ) {}
 
   public createCasino = async (
-    req: Request<any, any, CreateCasinoRequest>,
+    req: Request<Record<string, string>, unknown, CreateCasinoRequest>,
     res: Response,
   ): Promise<void> => {
     try {
@@ -24,9 +24,9 @@ export default class CasinoController {
         return;
       }
 
-      if (!/^[\p{L}\s]+$/u.test(name)) {
+      if (!/^[\p{L}\s_]+$/u.test(name)) {
         throw new ValidationException(
-          "Name cannot contain numbers or special characters",
+          "Name cannot contain numbers or special characters (except underscores)",
         );
       }
 
@@ -87,36 +87,33 @@ export default class CasinoController {
         res.status(400).json({ message: "Invalid casino ID" });
         return;
       }
-      const { name, alias, url } = req.body;
+      const requestBody = req.body;
+      const casino = await this.casinoService.getCasinoById(id);
 
-      if (!name || !url) {
-        res.status(400).json({ message: "Missing name or url" });
-
+      if (!casino) {
+        res.status(404).json({ message: "Casino not found" });
         return;
       }
 
-      if (!/^[\p{L}\s]+$/u.test(name)) {
+      if (!/^[\p{L}\s_]+$/u.test(requestBody.name)) {
         throw new ValidationException(
-          "Name cannot contain numbers or special characters",
+          "Name cannot contain numbers or special characters (except underscores)",
         );
       }
 
-      if (/\p{Lu}/u.test(name)) {
+      if (/\p{Lu}/u.test(requestBody.name)) {
         throw new ValidationException(
           "Name cannot contain capitalized characters",
         );
       }
 
-      const domainUrl = url ? UrlParser.extractDomain(url) : url;
-      const updatedCasino = await this.casinoService.updateCasino(id, {
-        name,
-        alias,
-        url: domainUrl,
-      });
-      if (!updatedCasino) {
-        res.status(404).json({ message: "Casino not found" });
-        return;
-      }
+      const domainUrl = requestBody.url
+        ? UrlParser.extractDomain(requestBody.url)
+        : requestBody.url;
+
+      const payload = { ...casino, ...requestBody };
+      const updatedCasino = await this.casinoService.updateCasino(id, payload);
+
       res.status(200).json(updatedCasino);
     } catch (error) {
       if (error instanceof ValidationException) {

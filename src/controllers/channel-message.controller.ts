@@ -17,7 +17,7 @@ export default class ChannelMessageController {
   ) {}
 
   public createChannelMessage = async (
-    req: Request<any, any, CreateChannelMessageRequest>,
+    req: Request<Record<string, string>, unknown, CreateChannelMessageRequest>,
     res: Response,
   ): Promise<void> => {
     try {

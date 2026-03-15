@@ -1,12 +1,15 @@
+import { Template } from "./template.entity";
+
 export interface Channel {
   id: number;
   language: string;
   chat_id: string;
   status: boolean;
-  groups?: {
+  groups: {
     casino_id: number;
     game_id: number;
-    strategy?: string;
+    strategy: string;
     status: boolean;
   }[];
+  templates: Template[];
 }

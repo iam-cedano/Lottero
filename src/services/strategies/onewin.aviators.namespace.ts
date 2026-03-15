@@ -1,19 +1,13 @@
 import { MessageData } from "@/models/group.model";
 import { inject, singleton } from "tsyringe";
-import CasinoRepository from "@/repositories/casino.repository";
 import GroupRepository from "@/repositories/group.repository";
 import ReportingServiceAbstract from "@/services/reporting.service.abstract";
 
 namespace OneWinAviators {
   @singleton()
   export class SimpleStrategyService extends ReportingServiceAbstract {
-    constructor(
-      @inject(CasinoRepository) private casinoRepo: CasinoRepository,
-      @inject(GroupRepository) private groupRepo: GroupRepository,
-    ) {
-      super();
-
-      console.info("OneWinAviators loaded");
+    constructor(@inject(GroupRepository) groupRepository: GroupRepository) {
+      super(groupRepository, "onewin", "aviator", "simple_strategy");
     }
 
     public async sendMessage(_data: MessageData): Promise<void> {

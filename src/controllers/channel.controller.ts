@@ -12,11 +12,11 @@ export default class ChannelController {
   ) {}
 
   public createChannel = async (
-    req: Request<any, any, CreateChannelRequest>,
+    req: Request<Record<string, string>, unknown, CreateChannelRequest>,
     res: Response,
   ): Promise<void> => {
     try {
-      const { language, chat_id } = req.body;
+      const { language, chat_id, status } = req.body;
 
       if (!language || !chat_id) {
         res.status(400).json({ message: "Missing language, or chat_id" });
@@ -26,6 +26,7 @@ export default class ChannelController {
       const channel = await this.channelService.createChannel({
         language,
         chat_id,
+        status: status !== undefined ? status : true,
       });
 
       res.status(201).json(channel);
@@ -91,7 +92,7 @@ export default class ChannelController {
         res.status(400).json({ message: "Invalid channel ID" });
         return;
       }
-      const { group_id, language, chat_id } = req.body;
+      const { language, chat_id, status } = req.body;
 
       const existingChannel = await this.channelService.getChannelById(id);
       if (!existingChannel) {
@@ -99,12 +100,13 @@ export default class ChannelController {
         return;
       }
 
-      const targetLanguage =
+      const _targetLanguage =
         language !== undefined ? language : existingChannel.language;
 
       const updatedChannel = await this.channelService.updateChannel(id, {
         language,
         chat_id,
+        status,
       });
       if (!updatedChannel) {
         res.status(404).json({ message: "Channel not found" });

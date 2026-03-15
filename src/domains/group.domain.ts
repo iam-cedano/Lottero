@@ -1,5 +1,4 @@
 import MessageEnum from "@/enums/message.enum";
-import { ChannelFormatException } from "@/exceptions/group.exception";
 import { MessageRequest } from "@/models/group.model";
 import ReportingServiceAbstract from "@/services/reporting.service.abstract";
 import { container } from "tsyringe";

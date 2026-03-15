@@ -7,6 +7,7 @@ export const config = {
   botToken: process.env.TELEGRAM_BOT_TOKEN,
   defaultChannelId: process.env.TELEGRAM_CHANNEL_ID,
   apiSecretKey: process.env.API_SECRET_KEY,
+  authToken: process.env.AUTH_TOKEN,
   db: {
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "5432"),

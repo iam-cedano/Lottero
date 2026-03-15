@@ -16,7 +16,7 @@ export default class GroupStatisticController {
   ) {}
 
   public createGroupStatistic = async (
-    req: Request<any, any, CreateGroupStatisticRequest>,
+    req: Request<Record<string, string>, unknown, CreateGroupStatisticRequest>,
     res: Response,
   ): Promise<void> => {
     try {
@@ -43,7 +43,7 @@ export default class GroupStatisticController {
         });
 
       res.status(201).json(groupStatistic);
-    } catch (error) {
+    } catch (error: unknown) {
       res
         .status(500)
         .json({ message: "Failed to create channel group statistic", error });
@@ -58,7 +58,7 @@ export default class GroupStatisticController {
       const groupStatistics =
         await this.groupStatisticService.getGroupStatistics();
       res.status(200).json(groupStatistics);
-    } catch (error) {
+    } catch (error: unknown) {
       res
         .status(500)
         .json({ message: "Failed to fetch channel group statistics", error });
@@ -82,7 +82,7 @@ export default class GroupStatisticController {
         return;
       }
       res.status(200).json(groupStatistic);
-    } catch (error) {
+    } catch (error: unknown) {
       res
         .status(500)
         .json({ message: "Failed to fetch channel group statistic", error });
@@ -90,7 +90,7 @@ export default class GroupStatisticController {
   };
 
   public updateGroupStatistic = async (
-    req: Request,
+    req: Request<Record<string, string>, unknown, UpdateGroupStatisticRequest>,
     res: Response,
   ): Promise<void> => {
     try {
@@ -100,7 +100,7 @@ export default class GroupStatisticController {
         return;
       }
       const { group_id, the_date, data } =
-        req.body as UpdateGroupStatisticRequest;
+        req.body;
 
       if (group_id) {
         const group = await this.groupService.getGroupById(group_id);
@@ -110,7 +110,7 @@ export default class GroupStatisticController {
         }
       }
 
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
       if (group_id !== undefined) updateData.group_id = group_id;
       if (the_date !== undefined) updateData.the_date = new Date(the_date);
       if (data !== undefined) updateData.data = data;

@@ -9,7 +9,7 @@ export default class GameController {
   constructor(@inject(GameService) private readonly gameService: GameService) {}
 
   public createGame = async (
-    req: Request<any, any, CreateGameRequest>,
+    req: Request<Record<string, string>, unknown, CreateGameRequest>,
     res: Response,
   ): Promise<void> => {
     try {
@@ -20,9 +20,9 @@ export default class GameController {
         return;
       }
 
-      if (!/^[\p{L}\s]+$/u.test(name)) {
+      if (!/^[\p{L}\s_]+$/u.test(name)) {
         throw new ValidationException(
-          "Name cannot contain numbers or special characters",
+          "Name cannot contain numbers or special characters (except underscores)",
         );
       }
 
@@ -81,33 +81,34 @@ export default class GameController {
         res.status(400).json({ message: "Invalid game ID" });
         return;
       }
-      const { name, alias } = req.body;
+      const reqBody = req.body;
+      const game = this.gameService.getGameById(id);
 
-      if (!name) {
+      if (!game) {
+        res.status(404).json({ message: "Game not found" });
+        return;
+      }
+
+      if (!reqBody.name) {
         res.status(400).json({ message: "Missing name" });
         return;
       }
 
-      if (!/^[\p{L}\s]+$/u.test(name)) {
+      if (!/^[\p{L}\s_]+$/u.test(reqBody.name)) {
         throw new ValidationException(
-          "Name cannot contain numbers or special characters",
+          "Name cannot contain numbers or special characters (except underscores)",
         );
       }
 
-      if (/\p{Lu}/u.test(name)) {
+      if (/\p{Lu}/u.test(reqBody.name)) {
         throw new ValidationException(
           "Name cannot contain capitalized characters",
         );
       }
 
-      const updatedGame = await this.gameService.updateGame(id, {
-        name,
-        alias,
-      });
-      if (!updatedGame) {
-        res.status(404).json({ message: "Game not found" });
-        return;
-      }
+      const payload = { ...game, ...reqBody };
+      const updatedGame = await this.gameService.updateGame(id, payload);
+
       res.status(200).json(updatedGame);
     } catch (error) {
       if (error instanceof ValidationException) {

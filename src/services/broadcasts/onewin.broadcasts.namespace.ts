@@ -1,4 +1,4 @@
-import { injectable, inject, singleton } from "tsyringe";
+import { inject, singleton } from "tsyringe";
 import CasinoRepository from "@/repositories/casino.repository";
 import GroupRepository from "@/repositories/group.repository";
 import ReportingServiceAbstract from "@/services/reporting.service.abstract";
@@ -11,9 +11,7 @@ namespace OneWinBroadcasts {
       @inject(CasinoRepository) private casinoRepo: CasinoRepository,
       @inject(GroupRepository) private groupRepo: GroupRepository,
     ) {
-      super();
-
-      console.info("OneWinBroadcasts loaded");
+      super(groupRepo, "onewin");
     }
 
     public async sendMessage(_data: MessageData): Promise<void> {

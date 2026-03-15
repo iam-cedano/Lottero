@@ -16,7 +16,7 @@ export default class GroupController {
   ) {}
 
   public sendMessage = async (
-    req: Request<any, any, MessageRequest>,
+    req: Request<Record<string, string>, unknown, MessageRequest>,
     res: Response,
   ) => {
     try {
@@ -37,7 +37,9 @@ export default class GroupController {
       const success = await this.groupService.sendMessage(channel, data);
 
       if (!success) {
-        res.status(400).json({ message: "Failed to send message: Invalid channel or data" });
+        res
+          .status(400)
+          .json({ message: "Failed to send message: Invalid channel or data" });
 
         return;
       }
@@ -83,7 +85,7 @@ export default class GroupController {
         channel_id,
       );
       if (isAlreadyInGroup) {
-        res.status(400).json({ message: "Channel is already in this group" });
+        res.status(400).json({ message: "Channel is already in the group" });
         return;
       }
 
@@ -149,7 +151,7 @@ export default class GroupController {
   };
 
   public createGroup = async (
-    req: Request<any, any, CreateGroupRequest>,
+    req: Request<Record<string, string>, unknown, CreateGroupRequest>,
     res: Response,
   ): Promise<void> => {
     try {
@@ -169,9 +171,19 @@ export default class GroupController {
         return;
       }
 
+      if (!casino.status) {
+        res.status(400).json({ message: "Casino is not active" });
+        return;
+      }
+
       const game = await this.gameService.getGameById(game_id);
       if (!game) {
         res.status(404).json({ message: "Game not found" });
+        return;
+      }
+
+      if (!game.status) {
+        res.status(400).json({ message: "Game is not active" });
         return;
       }
 

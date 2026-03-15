@@ -66,3 +66,13 @@ CREATE TABLE IF NOT EXISTS channel_messages (
     channel_id INTEGER NOT NULL REFERENCES channels(id),
     telegram_message_id INTEGER NOT NULL
 );
+
+-- Templates table
+CREATE TABLE IF NOT EXISTS templates (
+    id SERIAL PRIMARY KEY,
+    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
+    group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    content TEXT NOT NULL,
+    UNIQUE(channel_id, group_id, name)
+);

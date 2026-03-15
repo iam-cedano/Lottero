@@ -1,6 +1,6 @@
 export interface Game {
   id: number;
   name: string;
-  alias?: string;
+  alias: string;
   status: boolean;
 }

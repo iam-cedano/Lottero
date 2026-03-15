@@ -1,12 +1,9 @@
 import GroupDomain from "@/domains/group.domain";
 import MessageEnum from "@/enums/message.enum";
-import {
-  ChannelFormatException,
-  DataFormatException,
-} from "@/exceptions/group.exception";
+import { MessageRequest } from "@/models/group.model";
 import { describe, expect, it } from "vitest";
 
-describe("Group Domain | GetMessageType", () => {
+describe("GroupDomain.GetMessageType", () => {
   it("Should return BROADCAT when destination is only the casino", () => {
     const destination = "onewin";
 
@@ -40,7 +37,7 @@ describe("Group Domain | GetMessageType", () => {
   });
 });
 
-describe("Group Domain | IsMessageValid", () => {
+describe("GroupDomain.IsMessageValid", () => {
   it("Should return true when channel is casino-game-strategy", () => {
     const request = {
       channel: "onewin-hello-world",
@@ -88,7 +85,9 @@ describe("Group Domain | IsMessageValid", () => {
       },
     };
 
-    const isValid = GroupDomain.IsMessageValid(request as any);
+    const isValid = GroupDomain.IsMessageValid(
+      request as unknown as MessageRequest,
+    );
 
     expect(isValid).toBe(false);
   });
@@ -99,7 +98,9 @@ describe("Group Domain | IsMessageValid", () => {
       data: undefined,
     };
 
-    const isValid = GroupDomain.IsMessageValid(request as any);
+    const isValid = GroupDomain.IsMessageValid(
+      request as unknown as MessageRequest,
+    );
 
     expect(isValid).toBe(false);
   });
@@ -110,7 +111,9 @@ describe("Group Domain | IsMessageValid", () => {
       data: {},
     };
 
-    const isValid = GroupDomain.IsMessageValid(request as any);
+    const isValid = GroupDomain.IsMessageValid(
+      request as unknown as MessageRequest,
+    );
 
     expect(isValid).toBe(false);
   });
@@ -123,7 +126,9 @@ describe("Group Domain | IsMessageValid", () => {
       },
     };
 
-    const isValid = GroupDomain.IsMessageValid(request as any);
+    const isValid = GroupDomain.IsMessageValid(
+      request as unknown as MessageRequest,
+    );
 
     expect(isValid).toBe(false);
   });
@@ -136,7 +141,9 @@ describe("Group Domain | IsMessageValid", () => {
       },
     };
 
-    const isValid = GroupDomain.IsMessageValid(request as any);
+    const isValid = GroupDomain.IsMessageValid(
+      request as unknown as MessageRequest,
+    );
 
     expect(isValid).toBe(false);
   });
@@ -149,7 +156,9 @@ describe("Group Domain | IsMessageValid", () => {
       },
     };
 
-    const isValid = GroupDomain.IsMessageValid(request as any);
+    const isValid = GroupDomain.IsMessageValid(
+      request as unknown as MessageRequest,
+    );
 
     expect(isValid).toBe(false);
   });

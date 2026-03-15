@@ -14,7 +14,7 @@ export default class GroupMessageController {
   ) {}
 
   public createGroupMessage = async (
-    req: Request<any, any, CreateGroupMessageRequest>,
+    req: Request<Record<string, string>, unknown, CreateGroupMessageRequest>,
     res: Response,
   ): Promise<void> => {
     try {
