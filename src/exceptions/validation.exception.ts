@@ -1,6 +1,8 @@
-export default class ValidationException extends Error {
+import BaseException from "@/exceptions/base.exception";
+
+export default class ValidationException extends BaseException {
   constructor(message: string) {
-    super(message);
+    super(message, 400);
     this.name = "ValidationException";
   }
 }

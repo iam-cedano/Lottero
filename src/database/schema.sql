@@ -1,5 +1,3 @@
--- Create tables based on repositories and entities
-
 -- Casinos table
 CREATE TABLE IF NOT EXISTS casinos (
     id SERIAL PRIMARY KEY,
@@ -23,8 +21,10 @@ CREATE TABLE IF NOT EXISTS groups (
     casino_id INTEGER NOT NULL REFERENCES casinos(id),
     game_id INTEGER NOT NULL REFERENCES games(id),
     strategy VARCHAR(50),
+    strategy_alias VARCHAR(100),
     created DATE,
-    status BOOLEAN DEFAULT TRUE
+    status BOOLEAN DEFAULT TRUE,
+    UNIQUE(casino_id, game_id, strategy)
 );
 
 -- Channels table
@@ -76,3 +76,16 @@ CREATE TABLE IF NOT EXISTS templates (
     content TEXT NOT NULL,
     UNIQUE(channel_id, group_id, name)
 );
+
+-- Procedure to drop all tables in the public schema
+CREATE OR REPLACE PROCEDURE drop_all_tables()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
+        EXECUTE 'DROP TABLE IF EXISTS ' || quote_ident(r.tablename) || ' CASCADE';
+    END LOOP;
+END;
+$$;

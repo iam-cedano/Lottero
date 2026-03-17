@@ -1,85 +1,210 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import CasinoService from "@/services/casino.service";
-import CasinoRepository from "@/repositories/casino.repository";
 import { Casino } from "@/entities/casino.entity";
+import CasinoRepository from "@/repositories/casino.repository";
+import CasinoService from "@/services/casino.service";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 describe("CasinoService", () => {
+  const casinoRepositoryMock = {} as unknown as CasinoRepository;
   let casinoService: CasinoService;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let casinoRepositoryMock: any;
 
   beforeEach(() => {
-    casinoRepositoryMock = {
-      create: vi.fn(),
-      findAll: vi.fn(),
-      findById: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    };
-    casinoService = new CasinoService(casinoRepositoryMock as CasinoRepository);
+    casinoRepositoryMock.findAll = vi.fn();
+    casinoRepositoryMock.findByName = vi.fn();
+    casinoRepositoryMock.findById = vi.fn();
+    casinoRepositoryMock.create = vi.fn();
+    casinoRepositoryMock.update = vi.fn();
+    casinoRepositoryMock.delete = vi.fn();
+
+    casinoService = new CasinoService(casinoRepositoryMock);
   });
 
-  it("should create a casino", async () => {
-    const casinoData: Partial<Casino> = { name: "Test Casino" };
-    const expectedCasino: Casino = { id: 1, name: "Test Casino" } as Casino;
-    casinoRepositoryMock.create.mockResolvedValue(expectedCasino);
+  describe("getCasinos", () => {
+    it("Should get all casinos", async () => {
+      const expected: Casino[] = [
+        {
+          id: 1,
+          name: "Onewin",
+          alias: "onewin",
+          url: "https://onewin.com",
+          status: true,
+        },
+        {
+          id: 2,
+          name: "Deuces",
+          alias: "deuces",
+          url: "https://deuces.com",
+          status: true,
+        },
+      ];
 
-    const result = await casinoService.createCasino(casinoData);
+      vi.spyOn(casinoRepositoryMock, "findAll").mockResolvedValue(expected);
 
-    expect(casinoRepositoryMock.create).toHaveBeenCalledWith(casinoData);
-    expect(result).toEqual(expectedCasino);
+      const casinos = await casinoService.getCasinos();
+
+      expect(casinoRepositoryMock.findAll).toHaveBeenCalled();
+      expect(casinos).toEqual(expected);
+    });
   });
 
-  it("should get all casinos", async () => {
-    const expectedCasinos: Casino[] = [{ id: 1, name: "Test Casino" } as Casino];
-    casinoRepositoryMock.findAll.mockResolvedValue(expectedCasinos);
+  describe("getCasinoById", () => {
+    it("Should get a casino by id", async () => {
+      const expected: Casino = {
+        id: 1,
+        name: "fake",
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
 
-    const result = await casinoService.getCasinos();
+      vi.spyOn(casinoRepositoryMock, "findById").mockResolvedValue(expected);
 
-    expect(casinoRepositoryMock.findAll).toHaveBeenCalled();
-    expect(result).toEqual(expectedCasinos);
+      const casino = await casinoService.getCasinoById(1);
+
+      expect(casinoRepositoryMock.findById).toHaveBeenCalled();
+      expect(casino).toEqual(expected);
+    });
   });
 
-  it("should get casino by id", async () => {
-    const casinoId = 1;
-    const expectedCasino: Casino = { id: 1, name: "Test Casino" } as Casino;
-    casinoRepositoryMock.findById.mockResolvedValue(expectedCasino);
+  describe("createCasino", () => {
+    it("Should create a casino", async () => {
+      const casino: Casino = {
+        id: 1,
+        name: "fake",
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
 
-    const result = await casinoService.getCasinoById(casinoId);
+      vi.spyOn(casinoRepositoryMock, "create").mockResolvedValue(casino);
 
-    expect(casinoRepositoryMock.findById).toHaveBeenCalledWith(casinoId);
-    expect(result).toEqual(expectedCasino);
+      const createdCasino = await casinoService.createCasino(casino);
+
+      expect(casinoRepositoryMock.create).toHaveBeenCalled();
+      expect(createdCasino).toEqual(casino);
+    });
+
+    it("Should throw an error when the name is already registered", async () => {
+      const name = "fake";
+
+      const firstCasino: Casino = {
+        id: 1,
+        name: name,
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
+
+      const secondCasino: Casino = {
+        id: 2,
+        name: name,
+        alias: "Faker 2",
+        url: "https://faker2.com",
+        status: true,
+      };
+
+      vi.spyOn(casinoRepositoryMock, "findByName").mockResolvedValue(
+        firstCasino,
+      );
+
+      await expect(casinoService.createCasino(secondCasino)).rejects.toThrow(
+        "Casino name already registered",
+      );
+
+      expect(casinoRepositoryMock.findByName).toHaveBeenCalled();
+    });
+
+    it("Should throw an error when the name is invalid", async () => {
+      const casino: Casino = {
+        id: 1,
+        name: "FAKE",
+        alias: "fake",
+        url: "https://faker.com",
+        status: true,
+      };
+
+      await expect(casinoService.createCasino(casino)).rejects.toThrow(
+        "Name cannot contain numbers, capitalized and special characters (except for underscores)",
+      );
+    });
   });
 
-  it("should return null if casino by id is not found", async () => {
-    const casinoId = 1;
-    casinoRepositoryMock.findById.mockResolvedValue(null);
+  describe("updateCasino", () => {
+    it("Should update a casino", async () => {
+      const casino: Casino = {
+        id: 1,
+        name: "faker",
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
 
-    const result = await casinoService.getCasinoById(casinoId);
+      vi.spyOn(casinoRepositoryMock, "findById").mockResolvedValue(casino);
+      vi.spyOn(casinoRepositoryMock, "update").mockResolvedValue(casino);
 
-    expect(casinoRepositoryMock.findById).toHaveBeenCalledWith(casinoId);
-    expect(result).toBeNull();
+      const updatedCasino = await casinoService.updateCasino(1, casino);
+
+      expect(casinoRepositoryMock.update).toHaveBeenCalled();
+      expect(updatedCasino).toEqual(casino);
+    });
+
+    it("Should throw an error if the casino is not found", async () => {
+      const casino: Casino = {
+        id: 1,
+        name: "fake",
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
+
+      vi.spyOn(casinoRepositoryMock, "findById").mockResolvedValue(null);
+
+      await expect(casinoService.updateCasino(1, casino)).rejects.toThrow(
+        "Casino not found",
+      );
+    });
+
+    it("Should throw an error if the name is invalid", async () => {
+      const casino: Casino = {
+        id: 1,
+        name: "FAKE",
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
+
+      vi.spyOn(casinoRepositoryMock, "findById").mockResolvedValue(casino);
+
+      await expect(casinoService.updateCasino(1, casino)).rejects.toThrow(
+        "Name cannot contain numbers, capitalized and special characters (except for underscores)",
+      );
+    });
   });
 
-  it("should update a casino", async () => {
-    const casinoId = 1;
-    const updateData: Partial<Casino> = { name: "Updated Casino" };
-    const expectedCasino: Casino = { id: 1, name: "Updated Casino" } as Casino;
-    casinoRepositoryMock.update.mockResolvedValue(expectedCasino);
+  describe("deleteCasino", () => {
+    it("Should delete a casino", async () => {
+      const casino: Casino = {
+        id: 1,
+        name: "fake",
+        alias: "Faker",
+        url: "https://faker.com",
+        status: true,
+      };
 
-    await casinoService.updateCasino(casinoId, updateData);
+      vi.spyOn(casinoRepositoryMock, "findById").mockResolvedValue(casino);
+      vi.spyOn(casinoRepositoryMock, "delete").mockResolvedValue(true);
 
-    expect(casinoRepositoryMock.update).toHaveBeenCalledWith(casinoId, updateData);
-  });
+      const deletedCasino = await casinoService.deleteCasino(1);
 
-  it("should delete a casino", async () => {
-    const casinoId = 1;
-    casinoRepositoryMock.delete.mockResolvedValue(true);
+      expect(casinoRepositoryMock.delete).toHaveBeenCalled();
+      expect(deletedCasino).toEqual(true);
+    });
 
-    const result = await casinoService.deleteCasino(casinoId);
+    it("Should throw an error if the casino is not found", async () => {
+      vi.spyOn(casinoRepositoryMock, "findById").mockResolvedValue(null);
 
-    expect(casinoRepositoryMock.delete).toHaveBeenCalledWith(casinoId);
-    expect(result).toBe(true);
+      await expect(casinoService.deleteCasino(1)).rejects.toThrow(
+        "Casino not found",
+      );
+    });
   });
 });

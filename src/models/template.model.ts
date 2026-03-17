@@ -6,7 +6,8 @@ export interface CreateTemplateRequest {
 }
 
 export interface UpdateTemplateRequest {
-  group_id?: number;
-  name?: string;
-  content?: string;
+  channel_id: number;
+  group_id: number;
+  name: string;
+  content: string;
 }

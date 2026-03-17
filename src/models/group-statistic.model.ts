@@ -5,7 +5,7 @@ export interface CreateGroupStatisticRequest {
 }
 
 export interface UpdateGroupStatisticRequest {
-  group_id?: number;
-  the_date?: string;
-  data?: Record<string, unknown>;
+  group_id: number;
+  the_date: string;
+  data: Record<string, unknown>;
 }

@@ -1,5 +1,5 @@
 export interface CreateGameRequest {
-  name?: string;
-  alias?: string;
-  status?: boolean;
+  name: string;
+  alias: string;
+  status: boolean;
 }

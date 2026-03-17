@@ -2,6 +2,8 @@ import { Pool } from "pg";
 import { injectable, inject } from "tsyringe";
 import BaseRepository from "@/repositories/base.repository";
 import { Casino } from "@/entities/casino.entity";
+import CasinoDomain from "@/domains/casino.domain";
+import ValidationException from "@/exceptions/validation.exception";
 
 @injectable()
 export default class CasinoRepository extends BaseRepository<Casino> {

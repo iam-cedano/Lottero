@@ -1,162 +1,232 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import GroupService from "@/services/group.service";
-import GroupDomain from "@/domains/group.domain";
-import { ChannelsGroups } from "@/entities/channels-groups.entity";
+import GroupRepository from "@/repositories/group.repository";
+import ChannelsGroupsRepository from "@/repositories/channels-groups.repository";
+import ChannelRepository from "@/repositories/channel.repository";
+import CasinoService from "@/services/casino.service";
+import GameService from "@/services/game.service";
+import ChannelService from "@/services/channel.service";
+import { Group } from "@/entities/group.entity";
 import { Channel } from "@/entities/channel.entity";
+import { Casino } from "@/entities/casino.entity";
+import { Game } from "@/entities/game.entity";
+import { ChannelsGroups } from "@/entities/channels-groups.entity";
+import NotFoundException from "@/exceptions/not-found.exception";
+import ValidationException from "@/exceptions/validation.exception";
 
 describe("GroupService", () => {
+  const groupRepositoryMock = {} as unknown as GroupRepository;
+  const channelsGroupsRepositoryMock =
+    {} as unknown as ChannelsGroupsRepository;
+  const channelRepositoryMock = {} as unknown as ChannelRepository;
+  const casinoServiceMock = {} as unknown as CasinoService;
+  const gameServiceMock = {} as unknown as GameService;
+  const channelServiceMock = {} as unknown as ChannelService;
+
   let groupService: GroupService;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let groupRepositoryMock: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let channelsGroupsRepositoryMock: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let channelRepositoryMock: any;
 
   beforeEach(() => {
-    groupRepositoryMock = {
-      create: vi.fn(),
-      findAll: vi.fn(),
-      findById: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-    };
-    channelsGroupsRepositoryMock = {
-      create: vi.fn(),
-      findByGroupIdAndChannelId: vi.fn(),
-      deleteByGroupIdAndChannelId: vi.fn(),
-    };
-    channelRepositoryMock = {
-      findByGroupId: vi.fn(),
-    };
+    groupRepositoryMock.findById = vi.fn();
+    groupRepositoryMock.findAll = vi.fn();
+    groupRepositoryMock.create = vi.fn();
+    groupRepositoryMock.update = vi.fn();
+    groupRepositoryMock.delete = vi.fn();
+
+    channelsGroupsRepositoryMock.create = vi.fn();
+    channelsGroupsRepositoryMock.findByGroupIdAndChannelId = vi.fn();
+    channelsGroupsRepositoryMock.deleteByGroupIdAndChannelId = vi.fn();
+
+    channelRepositoryMock.findByGroupId = vi.fn();
+
+    casinoServiceMock.getCasinoById = vi.fn();
+    gameServiceMock.getGameById = vi.fn();
+    channelServiceMock.getChannelById = vi.fn();
+
     groupService = new GroupService(
       groupRepositoryMock,
       channelsGroupsRepositoryMock,
       channelRepositoryMock,
+      casinoServiceMock,
+      gameServiceMock,
+      channelServiceMock,
     );
   });
 
   describe("sendMessage", () => {
-    it("should return false if message is invalid", async () => {
-      vi.spyOn(GroupDomain, "IsMessageValid").mockReturnValue(false);
-      const result = await groupService.sendMessage("test-channel", {
-        command: "test",
-      });
-      expect(result).toBe(false);
-    });
-
-    it("should return false if reporting instance is not found", async () => {
-      vi.spyOn(GroupDomain, "IsMessageValid").mockReturnValue(true);
-      vi.spyOn(GroupDomain, "GetReportingInstance").mockReturnValue(undefined);
-      const result = await groupService.sendMessage("test-channel", {
-        command: "test",
-      });
-      expect(result).toBe(false);
-    });
-
-    it("should send message and return true if everything is valid", async () => {
-      const reportingInstanceMock = {
-        sendMessage: vi.fn().mockResolvedValue(undefined),
+    it("should return a message for a valid message", async () => {
+      const expected = {
+        id: 1,
+        group_id: 1,
+        data: {},
+        created: "10-01-2026",
       };
-      vi.spyOn(GroupDomain, "IsMessageValid").mockReturnValue(true);
-      vi.spyOn(GroupDomain, "GetReportingInstance").mockReturnValue(
-        reportingInstanceMock as any,
+
+      const result = await groupService.sendMessage("casino-game-strategy", {
+        command: "bet",
+      });
+
+      expect(result).toEqual(expected);
+    });
+
+    it("should throw an error when casino is empty", async () => {
+      await expect(
+        groupService.sendMessage("", { command: "bet" }),
+      ).rejects.toThrow(ValidationException);
+    });
+  });
+
+  describe("addChannelToGroup", () => {
+    it("should add a channel to a group", async () => {
+      const group: Group = {
+        id: 1,
+        casino_id: 1,
+        game_id: 1,
+        strategy: "test",
+      } as Group;
+      const channel: Channel = {
+        id: 1,
+        chat_id: "123",
+        status: true,
+      } as Channel;
+      const assignment: ChannelsGroups = {
+        group_id: 1,
+        channel_id: 1,
+      } as ChannelsGroups;
+
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue(group);
+      vi.spyOn(channelServiceMock, "getChannelById").mockResolvedValue(channel);
+      vi.spyOn(
+        channelsGroupsRepositoryMock,
+        "findByGroupIdAndChannelId",
+      ).mockResolvedValue(null);
+      vi.spyOn(channelsGroupsRepositoryMock, "create").mockResolvedValue(
+        assignment,
       );
 
-      const result = await groupService.sendMessage("test-channel", {
-        command: "test",
-      });
+      const result = await groupService.addChannelToGroup(1, 1);
 
-      expect(reportingInstanceMock.sendMessage).toHaveBeenCalledWith({
-        command: "test",
-      });
+      expect(result).toBe(assignment);
+    });
+
+    it("should throw NotFoundException if group does not exist", async () => {
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue(null);
+      await expect(groupService.addChannelToGroup(1, 1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe("removeChannelFromGroup", () => {
+    it("should remove a channel from a group", async () => {
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue({
+        id: 1,
+      } as Group);
+      vi.spyOn(channelServiceMock, "getChannelById").mockResolvedValue({
+        id: 1,
+      } as Channel);
+      vi.spyOn(
+        channelsGroupsRepositoryMock,
+        "deleteByGroupIdAndChannelId",
+      ).mockResolvedValue(true);
+
+      const result = await groupService.removeChannelFromGroup(1, 1);
+
       expect(result).toBe(true);
     });
-  });
 
-  it("should add channel to group", async () => {
-    const groupId = 1;
-    const channelId = 2;
-    const expectedAssignment = {
-      group_id: groupId,
-      channel_id: channelId,
-    } as ChannelsGroups;
-    channelsGroupsRepositoryMock.create.mockResolvedValue(expectedAssignment);
+    it("should throw NotFoundException if assignment not found", async () => {
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue({
+        id: 1,
+      } as Group);
+      vi.spyOn(channelServiceMock, "getChannelById").mockResolvedValue({
+        id: 1,
+      } as Channel);
+      vi.spyOn(
+        channelsGroupsRepositoryMock,
+        "deleteByGroupIdAndChannelId",
+      ).mockResolvedValue(false);
 
-    const result = await groupService.addChannelToGroup(groupId, channelId);
-
-    expect(channelsGroupsRepositoryMock.create).toHaveBeenCalledWith({
-      group_id: groupId,
-      channel_id: channelId,
+      await expect(groupService.removeChannelFromGroup(1, 1)).rejects.toThrow(
+        NotFoundException,
+      );
     });
-    expect(result).toEqual(expectedAssignment);
   });
 
-  it("should check if channel is in group", async () => {
-    const groupId = 1;
-    const channelId = 2;
-    channelsGroupsRepositoryMock.findByGroupIdAndChannelId.mockResolvedValue({
-      id: 1,
+  describe("createGroup", () => {
+    it("should create a group", async () => {
+      const groupData = {
+        casino_id: 1,
+        game_id: 1,
+        strategy: "valid_strategy",
+      };
+      const casino = { id: 1, status: true } as Casino;
+      const game = { id: 1, status: true } as Game;
+
+      vi.spyOn(casinoServiceMock, "getCasinoById").mockResolvedValue(casino);
+      vi.spyOn(gameServiceMock, "getGameById").mockResolvedValue(game);
+      vi.spyOn(groupRepositoryMock, "create").mockResolvedValue({
+        id: 1,
+        ...groupData,
+      } as Group);
+
+      const result = await groupService.createGroup(groupData);
+
+      expect(result.id).toBe(1);
     });
 
-    const result = await groupService.isChannelInGroup(groupId, channelId);
-
-    expect(result).toBe(true);
+    it("should throw ValidationException if strategy is invalid", async () => {
+      const groupData = {
+        casino_id: 1,
+        game_id: 1,
+        strategy: "INVALID STRATEGY",
+      };
+      await expect(groupService.createGroup(groupData)).rejects.toThrow(
+        ValidationException,
+      );
+    });
   });
 
-  it("should remove channel from group", async () => {
-    const groupId = 1;
-    const channelId = 2;
-    channelsGroupsRepositoryMock.deleteByGroupIdAndChannelId.mockResolvedValue(
-      true,
-    );
-
-    const result = await groupService.removeChannelFromGroup(
-      groupId,
-      channelId,
-    );
-
-    expect(result).toBe(true);
+  describe("getGroupById", () => {
+    it("should return a group by id", async () => {
+      const group = { id: 1 } as Group;
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue(group);
+      const result = await groupService.getGroupById(1);
+      expect(result).toBe(group);
+    });
   });
 
-  it("should create a group", async () => {
-    const groupData = { casino_id: 1 };
-    const expectedGroup = { id: 1, ...groupData } as any;
-    groupRepositoryMock.create.mockResolvedValue(expectedGroup);
+  describe("updateGroup", () => {
+    it("should update a group", async () => {
+      const group = { id: 1 } as Group;
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue(group);
+      vi.spyOn(groupRepositoryMock, "update").mockResolvedValue({
+        ...group,
+        strategy: "updated",
+      } as Group);
 
-    const result = await groupService.createGroup(groupData);
+      const result = await groupService.updateGroup(1, { strategy: "updated" });
 
-    expect(result).toEqual(expectedGroup);
+      expect(result?.strategy).toBe("updated");
+    });
   });
 
-  it("should get group channels", async () => {
-    const groupId = 1;
-    const expectedChannels = [{ id: 1 }] as Channel[];
-    channelRepositoryMock.findByGroupId.mockResolvedValue(expectedChannels);
+  describe("deleteGroup", () => {
+    it("should delete a group", async () => {
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue({
+        id: 1,
+      } as Group);
+      vi.spyOn(groupRepositoryMock, "delete").mockResolvedValue(true);
 
-    const result = await groupService.getGroupChannels(groupId);
+      const result = await groupService.deleteGroup(1);
 
-    expect(result).toEqual(expectedChannels);
-  });
+      expect(result).toBe(true);
+    });
 
-  it("should update a group", async () => {
-    const groupId = 1;
-    const updateData = { casino_id: 2 };
-    const expectedGroup = { id: 1, ...updateData } as any;
-    groupRepositoryMock.update.mockResolvedValue(expectedGroup);
-
-    const result = await groupService.updateGroup(groupId, updateData);
-
-    expect(result).toEqual(expectedGroup);
-  });
-
-  it("should delete a group", async () => {
-    const groupId = 1;
-    groupRepositoryMock.delete.mockResolvedValue(true);
-
-    const result = await groupService.deleteGroup(groupId);
-
-    expect(result).toBe(true);
+    it("should throw NotFoundException if group not found", async () => {
+      vi.spyOn(groupRepositoryMock, "findById").mockResolvedValue(null);
+      await expect(groupService.deleteGroup(1)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 });

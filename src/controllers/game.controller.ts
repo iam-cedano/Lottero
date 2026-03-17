@@ -3,6 +3,7 @@ import { inject, injectable } from "tsyringe";
 import { CreateGameRequest } from "@/models/game.model";
 import GameService from "@/services/game.service";
 import ValidationException from "@/exceptions/validation.exception";
+import BaseException from "@/exceptions/base.exception";
 
 @injectable()
 export default class GameController {
@@ -16,20 +17,7 @@ export default class GameController {
       const { name, alias } = req.body;
 
       if (!name) {
-        res.status(400).json({ message: "Missing name" });
-        return;
-      }
-
-      if (!/^[\p{L}\s_]+$/u.test(name)) {
-        throw new ValidationException(
-          "Name cannot contain numbers or special characters (except underscores)",
-        );
-      }
-
-      if (/\p{Lu}/u.test(name)) {
-        throw new ValidationException(
-          "Name cannot contain capitalized characters",
-        );
+        throw new ValidationException("Missing name");
       }
 
       const game = await this.gameService.createGame({
@@ -39,11 +27,12 @@ export default class GameController {
 
       res.status(201).json(game);
     } catch (error) {
-      if (error instanceof ValidationException) {
-        res.status(400).json({ message: error.message });
+      if (!(error instanceof BaseException)) {
+        res.status(500).json({ message: "An error has occured" });
         return;
       }
-      res.status(500).json({ message: "Failed to create game", error });
+
+      error.report(res);
     }
   };
 
@@ -52,7 +41,12 @@ export default class GameController {
       const games = await this.gameService.getGames();
       res.status(200).json(games);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch games", error });
+      if (!(error instanceof BaseException)) {
+        res.status(500).json({ message: "An error has occured" });
+        return;
+      }
+
+      error.report(res);
     }
   };
 
@@ -60,8 +54,7 @@ export default class GameController {
     try {
       const id = parseInt(req.params.id as string, 10);
       if (isNaN(id)) {
-        res.status(400).json({ message: "Invalid game ID" });
-        return;
+        throw new ValidationException("Parameter ID is missing");
       }
       const game = await this.gameService.getGameById(id);
       if (!game) {
@@ -70,7 +63,12 @@ export default class GameController {
       }
       res.status(200).json(game);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch game", error });
+      if (!(error instanceof BaseException)) {
+        res.status(500).json({ message: "An error has occured" });
+        return;
+      }
+
+      error.report(res);
     }
   };
 
@@ -78,44 +76,19 @@ export default class GameController {
     try {
       const id = parseInt(req.params.id as string, 10);
       if (isNaN(id)) {
-        res.status(400).json({ message: "Invalid game ID" });
-        return;
+        throw new ValidationException("Parameter ID is missing");
       }
       const reqBody = req.body;
-      const game = this.gameService.getGameById(id);
-
-      if (!game) {
-        res.status(404).json({ message: "Game not found" });
-        return;
-      }
-
-      if (!reqBody.name) {
-        res.status(400).json({ message: "Missing name" });
-        return;
-      }
-
-      if (!/^[\p{L}\s_]+$/u.test(reqBody.name)) {
-        throw new ValidationException(
-          "Name cannot contain numbers or special characters (except underscores)",
-        );
-      }
-
-      if (/\p{Lu}/u.test(reqBody.name)) {
-        throw new ValidationException(
-          "Name cannot contain capitalized characters",
-        );
-      }
-
-      const payload = { ...game, ...reqBody };
-      const updatedGame = await this.gameService.updateGame(id, payload);
+      const updatedGame = await this.gameService.updateGame(id, reqBody);
 
       res.status(200).json(updatedGame);
     } catch (error) {
-      if (error instanceof ValidationException) {
-        res.status(400).json({ message: error.message });
+      if (!(error instanceof BaseException)) {
+        res.status(500).json({ message: "An error has occured" });
         return;
       }
-      res.status(500).json({ message: "Failed to update game", error });
+
+      error.report(res);
     }
   };
 
@@ -123,17 +96,17 @@ export default class GameController {
     try {
       const id = parseInt(req.params.id as string, 10);
       if (isNaN(id)) {
-        res.status(400).json({ message: "Invalid game ID" });
-        return;
+        throw new ValidationException("Parameter ID is missing");
       }
-      const success = await this.gameService.deleteGame(id);
-      if (!success) {
-        res.status(404).json({ message: "Game not found" });
-        return;
-      }
+      await this.gameService.deleteGame(id);
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ message: "Failed to delete game", error });
+      if (!(error instanceof BaseException)) {
+        res.status(500).json({ message: "An error has occured" });
+        return;
+      }
+
+      error.report(res);
     }
   };
 }

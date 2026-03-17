@@ -1,0 +1,36 @@
+---
+globs: test/**/*.ts
+alwaysApply: false
+---
+
+# Lottero Typescript Test standards
+
+Using `vitest`
+
+## Parts
+
+- **Services**: Test suites for services will be created following the pattern `Class => Methods`. 
+For example:
+describe("Person", () => {
+    describe("getName", () => {
+        it("should return the name", () => ...);
+    });
+});
+
+- **Setups**: Use beforeEach() to reset the state of all mocks. For services they have to be reloaded too.
+For example:
+const mock = {} as unknown as Repository;
+let service: Service;
+
+beforeEach(() => {
+    mock.findAll = vi.fn();
+    mock.findByName = vi.fn();
+    mock.findById = vi.fn();
+    mock.create = vi.fn();
+    mock.update = vi.fn();
+    mock.delete = vi.fn();
+
+    service = new Service(mock);
+});
+
+- **Pattern**: Ensure to follow the **Arrange, Act and Assert** pattern inside tests.

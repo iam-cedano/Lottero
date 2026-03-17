@@ -1,43 +1,8 @@
-import MessageEnum from "@/enums/message.enum";
-import { MessageRequest } from "@/models/group.model";
-import ReportingServiceAbstract from "@/services/reporting.service.abstract";
 import { container } from "tsyringe";
+import { MessageRequest } from "@/models/group.model";
+import SendMessageInterface from "@/interfaces/send-message.interface";
 
 export default class GroupDomain {
-  /**
-   * Get the type of message to send.
-   * There are three types of messages:
-   *  - BROADCAST: when the message is sent to all channels from a casino.
-   *  - GAME: when the message is sent to a specific group of channels from a casino's game.
-   * @param channel where the message will be sent. Format: casino-game-strategy
-   * @returns MessageEnum | undefined
-   */
-  public static GetMessageType(channel: string): MessageEnum | undefined {
-    const [casino, game, strategy] = channel.split("-");
-
-    if (channel == undefined || channel == "") {
-      return undefined;
-    }
-
-    if (!GroupDomain.CheckChannelFormat(channel)) {
-      return undefined;
-    }
-
-    if (casino == undefined || casino == "") {
-      return undefined;
-    }
-
-    if (game == undefined || game == "") {
-      return MessageEnum.BROADCAST;
-    }
-
-    if (strategy == undefined || strategy == "") {
-      return MessageEnum.GAME;
-    }
-
-    return MessageEnum.STRATEGY;
-  }
-
   /**
    * Validate if the request sent has the proper schema.
    * @param request request to validate
@@ -46,23 +11,7 @@ export default class GroupDomain {
   public static IsMessageValid(request: MessageRequest): boolean {
     const { channel, data } = request;
 
-    if (channel == undefined || channel == "") {
-      return false;
-    }
-
-    if (data == undefined || Object.keys(data).length === 0) {
-      return false;
-    }
-
-    if (!GroupDomain.CheckChannelFormat(channel)) {
-      return false;
-    }
-
-    if (!GroupDomain.CheckDataFormat(data)) {
-      return false;
-    }
-
-    return true;
+    return GroupDomain.IsChannelValid(channel) && GroupDomain.IsDataValid(data);
   }
 
   /**
@@ -72,8 +21,18 @@ export default class GroupDomain {
    */
   public static GetReportingInstance(
     channel: string,
-  ): ReportingServiceAbstract | undefined {
-    return container.resolve<ReportingServiceAbstract>(channel);
+  ): SendMessageInterface | undefined {
+    return container.resolve<SendMessageInterface>(channel);
+  }
+
+  /**
+   * Check if the strategy format is valid.
+   * @param strategy strategy to check
+   * @returns boolean
+   */
+  public static IsStrategyValid(strategy: string): boolean {
+    const regex = /^[a-z0-9_]+$/;
+    return regex.test(strategy);
   }
 
   /**
@@ -81,10 +40,10 @@ export default class GroupDomain {
    * @param channel channel to check
    * @returns boolean
    */
-  private static CheckChannelFormat(channel: string): boolean {
+  private static IsChannelValid(channel: string): boolean {
     const regex = /^\w+(-\w+(-\w+)?)?$/;
 
-    return regex.test(channel);
+    return channel != undefined && channel != "" && regex.test(channel);
   }
 
   /**
@@ -92,7 +51,14 @@ export default class GroupDomain {
    * @param data data to check
    * @returns boolean
    */
-  private static CheckDataFormat(data: Record<string, unknown>): boolean {
-    return data["command"] != undefined && data["command"] != "";
+  private static IsDataValid(data: Record<string, unknown>): boolean {
+    return (
+      data != undefined && data["command"] != undefined && data["command"] != ""
+    );
+  }
+
+  private static CheckCommandFormat(command: string): boolean {
+    const regex = /^[a-z0-9]+$/;
+    return regex.test(command);
   }
 }

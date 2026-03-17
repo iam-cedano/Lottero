@@ -1,4 +1,4 @@
-import { Pool, Result } from "pg";
+import { Pool } from "pg";
 import { injectable, inject } from "tsyringe";
 import BaseRepository from "@/repositories/base.repository";
 import { Template } from "@/entities/template.entity";
@@ -22,6 +22,7 @@ export default class TemplateRepository extends BaseRepository<Template> {
       `SELECT * FROM ${this.tableName} WHERE group_id = $1`,
       [groupId],
     );
+
     return result.rows;
   }
 
