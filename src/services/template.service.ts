@@ -1,4 +1,4 @@
-import { inject, injectable } from "tsyringe";
+import { delay, inject, injectable } from "tsyringe";
 import { Template } from "@/entities/template.entity";
 import TemplateRepository from "@/repositories/template.repository";
 import TemplateDomain from "@/domains/template.domain";
@@ -15,9 +15,9 @@ export default class TemplateService {
     private readonly templateRepository: TemplateRepository,
     @inject(ChannelService)
     private readonly channelService: ChannelService,
-    @inject(GroupService)
+    @inject(delay(() => GroupService))
     private readonly groupService: GroupService,
-  ) {}
+  ) { }
 
   async createTemplate(data: Partial<Template>): Promise<Template> {
     if (
@@ -156,5 +156,15 @@ export default class TemplateService {
       group_id,
       name,
     );
+  }
+
+  async getTemplatesFromChannelIdsAndGroupIdAndCommand(
+    _channelIds: number[], _groupId: number, _command: string): Promise<Pick<Template, "id" | "channel_id" | "name" | "content">[]> {
+
+    return [];
+  }
+
+  async getTemplatesFromCasinoIdAndType(casinoId: number, type: string) {
+    return this.templateRepository.findByCasinoIdAndType(casinoId, type);
   }
 }

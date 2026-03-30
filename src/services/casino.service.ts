@@ -11,7 +11,7 @@ export default class CasinoService {
   constructor(
     @inject(CasinoRepository)
     private readonly casinoRepository: CasinoRepository,
-  ) {}
+  ) { }
 
   async createCasino(data: Partial<Casino>): Promise<Casino> {
     const existing = await this.casinoRepository.findByName(data.name!);
@@ -70,5 +70,9 @@ export default class CasinoService {
     }
 
     return this.casinoRepository.delete(id);
+  }
+
+  async getCasinoByName(name: string): Promise<Casino | null> {
+    return this.casinoRepository.findByName(name);
   }
 }

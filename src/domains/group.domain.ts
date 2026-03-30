@@ -56,9 +56,4 @@ export default class GroupDomain {
       data != undefined && data["command"] != undefined && data["command"] != ""
     );
   }
-
-  private static CheckCommandFormat(command: string): boolean {
-    const regex = /^[a-z0-9]+$/;
-    return regex.test(command);
-  }
 }

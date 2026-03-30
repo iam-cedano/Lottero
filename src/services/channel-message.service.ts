@@ -7,11 +7,15 @@ export default class ChannelMessageService {
   constructor(
     @inject(ChannelMessageRepository)
     private readonly channelMessageRepository: ChannelMessageRepository,
-  ) {}
+  ) { }
 
   async createChannelMessage(
     data: Partial<ChannelMessage>,
   ): Promise<ChannelMessage> {
+    return this.channelMessageRepository.create(data);
+  }
+
+  async addMessage(data: Partial<ChannelMessage>): Promise<ChannelMessage> {
     return this.channelMessageRepository.create(data);
   }
 

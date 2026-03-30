@@ -9,7 +9,7 @@ import ValidationException from "@/exceptions/validation.exception";
 export default class GameService {
   constructor(
     @inject(GameRepository) private readonly gameRepository: GameRepository,
-  ) {}
+  ) { }
 
   async createGame(data: Partial<Game>): Promise<Game> {
     const existing = await this.gameRepository.findByName(data.name!);
@@ -59,5 +59,9 @@ export default class GameService {
     }
 
     return this.gameRepository.delete(id);
+  }
+
+  async getGameByName(name: string): Promise<Game | null> {
+    return this.gameRepository.findByName(name);
   }
 }

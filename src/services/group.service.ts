@@ -1,12 +1,11 @@
 import { MessageData } from "@/models/group.model";
 import { PartiesIndex } from "@/entities/party.entity";
-import { inject, injectable } from "tsyringe";
+import { delay, inject, injectable } from "tsyringe";
 import { Group } from "@/entities/group.entity";
 import { ChannelsGroups } from "@/entities/channels-groups.entity";
 import { Channel } from "@/entities/channel.entity";
 import GroupRepository from "@/repositories/group.repository";
 import ChannelsGroupsRepository from "@/repositories/channels-groups.repository";
-import ChannelRepository from "@/repositories/channel.repository";
 import GroupDomain from "@/domains/group.domain";
 import CasinoService from "@/services/casino.service";
 import GameService from "@/services/game.service";
@@ -14,32 +13,123 @@ import ChannelService from "@/services/channel.service";
 import ValidationException from "@/exceptions/validation.exception";
 import NotFoundException from "@/exceptions/not-found.exception";
 import ConflictException from "@/exceptions/conflict.exception";
-import { GroupMessage } from "@/entities/group-message.entity";
+import GroupStatisticService from "@/services/group-statistic.service";
+import TemplateService from "@/services/template.service";
+import TelegramService from "@/services/telegram.service";
+import Spelling from "@/utils/spelling.util";
+import { TelegramMessage } from "@/models/telegram.model";
+import { ChannelMessage } from "@/entities/channel-message.entity";
+import GroupMessageService from "@/services/group-message.service";
+import ChannelMessageService from "@/services/channel-message.service";
 
 @injectable()
 export default class GroupService {
   constructor(
     @inject(GroupRepository) private readonly groupRepository: GroupRepository,
-    @inject(ChannelsGroupsRepository)
-    private readonly channelsGroupsRepository: ChannelsGroupsRepository,
-    @inject(ChannelRepository)
-    private readonly channelRepository: ChannelRepository,
+    @inject(ChannelsGroupsRepository) private readonly channelsGroupsRepository: ChannelsGroupsRepository,
     @inject(CasinoService) private readonly casinoService: CasinoService,
     @inject(GameService) private readonly gameService: GameService,
     @inject(ChannelService) private readonly channelService: ChannelService,
-  ) {}
+    @inject(GroupStatisticService) private readonly groupStatisticService: GroupStatisticService,
+    @inject(TelegramService) private readonly telegramService: TelegramService,
+    @inject(delay(() => TemplateService)) private readonly templateService: TemplateService,
+    @inject(GroupMessageService) private readonly groupMessageService: GroupMessageService,
+    @inject(ChannelMessageService) private readonly channelMessageService: ChannelMessageService,
+  ) { }
 
-  async sendMessage(channel: string, data: MessageData): Promise<GroupMessage> {
+  async sendMessage(channel: string, data: MessageData) {
+    if (!channel || channel.trim() == "") {
+      throw new ValidationException("Channel is required and cannot be empty.");
+    }
+
+    if (!data || Object.keys(data).length == 0) {
+      throw new ValidationException("Data is required and cannot be empty.");
+    }
+
+    if (!data.command || data.command.trim() == "") {
+      throw new ValidationException(
+        "Command in data is required and cannot be empty.",
+      );
+    }
+
     if (!GroupDomain.IsMessageValid({ channel, data })) {
       throw new ValidationException("Invalid channel or data format");
     }
 
-    return {
-      id: 1,
-      group_id: 1,
-      data: {},
-      created: "10-01-2026",
-    };
+    if (data.command != "message") {
+      throw new ValidationException("Command must be 'message'");
+    }
+
+    const [casino, game, strategy] = channel.split("-");
+
+    const casinoEntity = await this.casinoService.getCasinoByName(casino);
+
+    if (!casinoEntity) {
+      throw new NotFoundException("Casino not found");
+    }
+
+    if (casino && game && strategy) {
+      const groups = await this.groupRepository.findByCasinoId(casinoEntity.id);
+      const setOfGroupsIds = [...new Set(groups.map((g) => g.id))];
+      const gameEntity = await this.gameService.getGameByName(game);
+
+      if (!gameEntity) {
+        throw new NotFoundException("Game not found");
+      }
+
+      const channels = await this.channelsGroupsRepository
+        .findChannelsByGroupIdsAndGameIdAndStrategy(setOfGroupsIds, gameEntity.id, strategy);
+
+      return channels;
+    } else if (casino && game && !strategy) {
+      const groups = await this.groupRepository.findByCasinoId(casinoEntity.id);
+      const setOfGroupsIds = [...new Set(groups.map((g) => g.id))];
+      const gameEntity = await this.gameService.getGameByName(game);
+
+      if (!gameEntity) {
+        throw new NotFoundException("Game not found");
+      }
+
+      const channels = await this.channelsGroupsRepository
+        .findChannelsByGroupIdsAndGameId(setOfGroupsIds, gameEntity.id);
+
+      return channels;
+    } else if (casino && !game && !strategy) {
+      const { command: _command, type: _type, ...gameData } = data as Record<string, string>;
+      const { id } = casinoEntity;
+
+      const type = data.type as string;
+
+      const templates = await this.templateService.getTemplatesFromCasinoIdAndType(id, type);
+
+      const messages: Partial<(TelegramMessage & ChannelMessage)>[] = [];
+
+      const group_message_id = 1;
+
+      templates.forEach(async (template) => {
+        const content = template.content;
+        const chat_id = template.chat_id;
+
+        const formattedContent = Spelling.replaceAll(content, gameData);
+
+        const { telegram_message_id } = await this.telegramService.sendMessage(chat_id, formattedContent);
+
+        const channel_message_id = 1;
+
+        const message: Partial<(TelegramMessage & ChannelMessage)> = {
+          id: channel_message_id,
+          telegram_message_id: telegram_message_id,
+          group_id: template.group_id,
+          group_message_id: group_message_id
+        }
+
+        messages.push(message);
+      });
+
+      return messages;
+    }
+
+    return [];
   }
 
   async addChannelToGroup(
@@ -136,7 +226,15 @@ export default class GroupService {
       throw new ValidationException("Game is not active");
     }
 
-    return this.groupRepository.create(data);
+    const group = await this.groupRepository.create(data);
+
+    await this.groupStatisticService.createGroupStatistic({
+      group_id: group.id,
+      the_date: new Date().toLocaleDateString(),
+      data: {}
+    });
+
+    return group;
   }
 
   async getGroups(): Promise<Group[]> {
@@ -144,7 +242,7 @@ export default class GroupService {
   }
 
   async getGroupChannels(groupId: number): Promise<Channel[]> {
-    return this.channelRepository.findByGroupId(groupId);
+    return this.channelService.getChannelsByGroupId(groupId);
   }
 
   async getGroupById(id: number): Promise<Group | null> {

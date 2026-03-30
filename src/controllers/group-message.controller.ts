@@ -11,7 +11,7 @@ export default class GroupMessageController {
   constructor(
     @inject(GroupMessageService)
     private readonly groupMessageService: GroupMessageService,
-  ) {}
+  ) { }
 
   public createGroupMessage = async (
     req: Request<Record<string, string>, unknown, CreateGroupMessageRequest>,

@@ -80,4 +80,22 @@ export default class GroupRepository extends BaseRepository<Group> {
 
     return index;
   }
+
+  async findByCasinoIdAndGameId(casinoId: number, gameId: number): Promise<Group[]> {
+    const result = await this.pool.query(
+      `SELECT * FROM ${this.tableName} WHERE casino_id = $1 AND game_id = $2`,
+      [casinoId, gameId],
+    );
+
+    return result.rows;
+  }
+
+  async findByCasinoIdAndGameIdAndStrategy(casinoId: number, gameId: number, strategy: string): Promise<Group | null> {
+    const result = await this.pool.query(
+      `SELECT * FROM ${this.tableName} WHERE casino_id = $1 AND game_id = $2 AND strategy = $3`,
+      [casinoId, gameId, strategy],
+    );
+
+    return result.rows[0];
+  }
 }

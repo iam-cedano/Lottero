@@ -13,7 +13,7 @@ import ValidationException from "@/exceptions/validation.exception";
 export default class GroupController {
   constructor(
     @inject(GroupService) private readonly groupService: GroupService,
-  ) {}
+  ) { }
 
   public sendMessage = async (
     req: Request<Record<string, string>, unknown, MessageRequest>,
@@ -22,26 +22,12 @@ export default class GroupController {
     try {
       const { channel, data } = req.body;
 
-      if (!channel) {
-        throw new ValidationException("Channel is required");
-      }
-
-      if (!data || Object.keys(data).length === 0) {
-        throw new ValidationException("Data is required");
-      }
-
-      if (!data.command || data.command == "") {
-        throw new ValidationException(
-          "Command in data is required and cannot be empty.",
-        );
-      }
-
       const result = await this.groupService.sendMessage(channel, data);
 
       res.status(201).send(result);
     } catch (error) {
       if (!(error instanceof BaseException)) {
-        res.status(500).json({ message: "An error has occured" });
+        res.status(500).json({ message: "An error has occured", error: error instanceof Error ? error.stack : undefined });
         return;
       }
 

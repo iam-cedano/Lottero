@@ -7,9 +7,13 @@ export default class GroupMessageService {
   constructor(
     @inject(GroupMessageRepository)
     private readonly groupMessageRepository: GroupMessageRepository,
-  ) {}
+  ) { }
 
   async createGroupMessage(data: Partial<GroupMessage>): Promise<GroupMessage> {
+    return this.groupMessageRepository.create(data);
+  }
+
+  async addMessage(data: Partial<GroupMessage>): Promise<GroupMessage> {
     return this.groupMessageRepository.create(data);
   }
 

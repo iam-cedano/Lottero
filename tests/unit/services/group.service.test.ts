@@ -13,6 +13,9 @@ import { Game } from "@/entities/game.entity";
 import { ChannelsGroups } from "@/entities/channels-groups.entity";
 import NotFoundException from "@/exceptions/not-found.exception";
 import ValidationException from "@/exceptions/validation.exception";
+import GroupStatisticService from "@/services/group-statistic.service";
+import TelegramService from "@/services/telegram.service";
+import TemplateService from "@/services/template.service";
 
 describe("GroupService", () => {
   const groupRepositoryMock = {} as unknown as GroupRepository;
@@ -22,6 +25,9 @@ describe("GroupService", () => {
   const casinoServiceMock = {} as unknown as CasinoService;
   const gameServiceMock = {} as unknown as GameService;
   const channelServiceMock = {} as unknown as ChannelService;
+  const groupStatisticServiceMock = {} as unknown as GroupStatisticService;
+  const telegramServiceMock = {} as unknown as TelegramService;
+  const templateServiceMock = {} as unknown as TemplateService;
 
   let groupService: GroupService;
 
@@ -36,30 +42,53 @@ describe("GroupService", () => {
     channelsGroupsRepositoryMock.findByGroupIdAndChannelId = vi.fn();
     channelsGroupsRepositoryMock.deleteByGroupIdAndChannelId = vi.fn();
 
+    groupStatisticServiceMock.createGroupStatistic = vi.fn();
+
     channelRepositoryMock.findByGroupId = vi.fn();
 
     casinoServiceMock.getCasinoById = vi.fn();
+    casinoServiceMock.getCasinoByName = vi.fn();
     gameServiceMock.getGameById = vi.fn();
     channelServiceMock.getChannelById = vi.fn();
+    channelRepositoryMock.findAll = vi.fn();
+
+    telegramServiceMock.sendMessage = vi.fn();
+
+    templateServiceMock.getTemplatesFromCasinoIdAndType = vi.fn();
+
+    const groupMessageServiceMock = { addMessage: vi.fn() } as any;
+    const channelMessageServiceMock = { addMessage: vi.fn() } as any;
 
     groupService = new GroupService(
       groupRepositoryMock,
       channelsGroupsRepositoryMock,
-      channelRepositoryMock,
       casinoServiceMock,
       gameServiceMock,
       channelServiceMock,
+      groupStatisticServiceMock,
+      telegramServiceMock,
+      templateServiceMock,
+      groupMessageServiceMock,
+      channelMessageServiceMock
     );
   });
 
   describe("sendMessage", () => {
     it("should return a message for a valid message", async () => {
-      const expected = {
+      const expected = [{
         id: 1,
         group_id: 1,
-        data: {},
+        data: { casino: "casino", game: "game", strategy: "strategy" },
         created: "10-01-2026",
-      };
+      }];
+
+      vi.spyOn(casinoServiceMock, "getCasinoByName").mockResolvedValueOnce({
+        id: 1,
+        name: "onewin",
+        alias: "OneWin",
+        url: "onewin.com",
+        status: true,
+      });
 
       const result = await groupService.sendMessage("casino-game-strategy", {
         command: "bet",

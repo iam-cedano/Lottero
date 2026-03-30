@@ -1,4 +1,4 @@
-import Party from "@/party";
+import type Party from "@/party";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -9,7 +9,8 @@ export async function getParty(): Promise<
   Awaited<ReturnType<typeof Party.build>>
 > {
   if (partyInstance == null) {
-    partyInstance = await Party.build();
+    const { default: PartyClass } = await import("@/party");
+    partyInstance = await PartyClass.build();
   }
   return partyInstance;
 }

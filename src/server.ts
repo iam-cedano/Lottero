@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import app from "@/app";
-import { config, getParty } from "@/config";
+import { config } from "@/config";
 import "@/container";
 
 const PORT = config.port;
