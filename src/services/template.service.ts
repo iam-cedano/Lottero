@@ -167,4 +167,8 @@ export default class TemplateService {
   async getTemplatesFromCasinoIdAndType(casinoId: number, type: string) {
     return this.templateRepository.findByCasinoIdAndType(casinoId, type);
   }
+
+  async getTemplatesFromCasinoIdAndGameIdAndType(casinoId: number, gameId: number, type: string) {
+    return [];
+  }
 }

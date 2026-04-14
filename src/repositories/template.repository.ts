@@ -75,7 +75,7 @@ export default class TemplateRepository extends BaseRepository<Template> {
       `SELECT t.id, c.chat_id, t.group_id, t.content FROM channels_groups cg
 	    INNER JOIN groups g ON cg.group_id = g.id
 	    INNER JOIN channels c ON cg.channel_id = c.id
-	    INNER JOIN templates t ON c.id = t.channel_id AND g.id = t.group_id 
+	    INNER JOIN templates t ON c.id = t.channel_id
       INNER JOIN casinos ca ON ca.id = g.casino_id
       WHERE ca.id = $1 AND t.name = $2`,
       [casinoId, type]

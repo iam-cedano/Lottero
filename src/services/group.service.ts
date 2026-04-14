@@ -69,31 +69,15 @@ export default class GroupService {
     }
 
     if (casino && game && strategy) {
-      const groups = await this.groupRepository.findByCasinoId(casinoEntity.id);
-      const setOfGroupsIds = [...new Set(groups.map((g) => g.id))];
-      const gameEntity = await this.gameService.getGameByName(game);
-
-      if (!gameEntity) {
-        throw new NotFoundException("Game not found");
-      }
-
-      const channels = await this.channelsGroupsRepository
-        .findChannelsByGroupIdsAndGameIdAndStrategy(setOfGroupsIds, gameEntity.id, strategy);
-
-      return channels;
+      return [];
     } else if (casino && game && !strategy) {
-      const groups = await this.groupRepository.findByCasinoId(casinoEntity.id);
-      const setOfGroupsIds = [...new Set(groups.map((g) => g.id))];
-      const gameEntity = await this.gameService.getGameByName(game);
+      const casinoId = casinoEntity.id;
+      const gameId = await this.gameService.getGameByName(game);
+      const type = data.type as string;
 
-      if (!gameEntity) {
-        throw new NotFoundException("Game not found");
-      }
+      const templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndType(casinoId, gameId, type);
 
-      const channels = await this.channelsGroupsRepository
-        .findChannelsByGroupIdsAndGameId(setOfGroupsIds, gameEntity.id);
-
-      return channels;
+      return templates;
     } else if (casino && !game && !strategy) {
       const { command: _command, type: _type, ...gameData } = data as Record<string, string>;
       const { id } = casinoEntity;
@@ -103,6 +87,8 @@ export default class GroupService {
       const templates = await this.templateService.getTemplatesFromCasinoIdAndType(id, type);
 
       const messages: Partial<(TelegramMessage & ChannelMessage)>[] = [];
+
+      return templates;
 
       const group_message_id = 1;
 
