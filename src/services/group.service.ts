@@ -19,8 +19,6 @@ import TelegramService from "@/services/telegram.service";
 import Spelling from "@/utils/spelling.util";
 import { TelegramMessage } from "@/models/telegram.model";
 import { ChannelMessage } from "@/entities/channel-message.entity";
-import GroupMessageService from "@/services/group-message.service";
-import ChannelMessageService from "@/services/channel-message.service";
 
 @injectable()
 export default class GroupService {
@@ -33,13 +31,11 @@ export default class GroupService {
     @inject(GroupStatisticService) private readonly groupStatisticService: GroupStatisticService,
     @inject(TelegramService) private readonly telegramService: TelegramService,
     @inject(delay(() => TemplateService)) private readonly templateService: TemplateService,
-    @inject(GroupMessageService) private readonly groupMessageService: GroupMessageService,
-    @inject(ChannelMessageService) private readonly channelMessageService: ChannelMessageService,
   ) { }
 
-  async sendMessage(channel: string, data: MessageData) {
-    if (!channel || channel.trim() == "") {
-      throw new ValidationException("Channel is required and cannot be empty.");
+  async sendMessage(recipient: string, data: MessageData) {
+    if (!recipient || recipient.trim() == "") {
+      throw new ValidationException("Recipient is required and cannot be empty.");
     }
 
     if (!data || Object.keys(data).length == 0) {
@@ -52,15 +48,15 @@ export default class GroupService {
       );
     }
 
-    if (!GroupDomain.IsMessageValid({ channel, data })) {
-      throw new ValidationException("Invalid channel or data format");
+    if (!GroupDomain.IsMessageValid({ recipient, data })) {
+      throw new ValidationException("Invalid recipient or data format");
     }
 
     if (data.command != "message") {
       throw new ValidationException("Command must be 'message'");
     }
 
-    const [casino, game, strategy] = channel.split("-");
+    const [casino, game, strategy] = recipient.split("-");
 
     const casinoEntity = await this.casinoService.getCasinoByName(casino);
 
@@ -69,10 +65,29 @@ export default class GroupService {
     }
 
     if (casino && game && strategy) {
-      return [];
-    } else if (casino && game && !strategy) {
+      const gameEntity = await this.gameService.getGameByName(game);
+
+      if (!gameEntity) {
+        throw new NotFoundException("Game not found");
+      }
+
       const casinoId = casinoEntity.id;
-      const gameId = await this.gameService.getGameByName(game);
+      const gameId = gameEntity.id;
+      const strategyName = strategy;
+      const type = data.type as string;
+
+      const templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategyName, type);
+
+      return templates;
+    } else if (casino && game && !strategy) {
+      const gameEntity = await this.gameService.getGameByName(game);
+
+      if (!gameEntity) {
+        throw new NotFoundException("Game not found");
+      }
+
+      const casinoId = casinoEntity.id;
+      const gameId = gameEntity.id;
       const type = data.type as string;
 
       const templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndType(casinoId, gameId, type);

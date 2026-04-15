@@ -56,9 +56,6 @@ describe("GroupService", () => {
 
     templateServiceMock.getTemplatesFromCasinoIdAndType = vi.fn();
 
-    const groupMessageServiceMock = { addMessage: vi.fn() } as any;
-    const channelMessageServiceMock = { addMessage: vi.fn() } as any;
-
     groupService = new GroupService(
       groupRepositoryMock,
       channelsGroupsRepositoryMock,
@@ -68,8 +65,6 @@ describe("GroupService", () => {
       groupStatisticServiceMock,
       telegramServiceMock,
       templateServiceMock,
-      groupMessageServiceMock,
-      channelMessageServiceMock
     );
   });
 

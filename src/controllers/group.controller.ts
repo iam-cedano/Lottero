@@ -20,9 +20,9 @@ export default class GroupController {
     res: Response,
   ) => {
     try {
-      const { channel, data } = req.body;
+      const { recipient, data } = req.body;
 
-      const result = await this.groupService.sendMessage(channel, data);
+      const result = await this.groupService.sendMessage(recipient, data);
 
       res.status(201).send(result);
     } catch (error) {

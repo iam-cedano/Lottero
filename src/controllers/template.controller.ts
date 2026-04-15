@@ -12,23 +12,23 @@ import ValidationException from "@/exceptions/validation.exception";
 export default class TemplateController {
   constructor(
     @inject(TemplateService) private readonly templateService: TemplateService,
-  ) {}
+  ) { }
 
   public createTemplate = async (
     req: Request<Record<string, string>, unknown, CreateTemplateRequest>,
     res: Response,
   ): Promise<void> => {
     try {
-      const { channel_id, group_id, name, content } = req.body;
+      const { language, group_id, name, content } = req.body;
 
-      if (channel_id == null || group_id == null || !name || !content) {
+      if (language == null || group_id == null || !name || !content) {
         throw new ValidationException(
-          "Missing channel_id, group_id, name, or content",
+          "Missing language, group_id, name, or content",
         );
       }
 
       const template = await this.templateService.createTemplate({
-        channel_id,
+        language,
         group_id,
         name,
         content,

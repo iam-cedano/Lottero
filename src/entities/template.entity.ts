@@ -3,5 +3,6 @@ export interface Template {
   channel_id: number;
   group_id: number;
   name: string;
+  language: string;
   content: string;
 }

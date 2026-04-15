@@ -23,9 +23,16 @@ INSERT INTO channels_groups(channel_id, group_id) VALUES
 (1, 1),
 (2, 2);
 
-INSERT INTO templates(channel_id, group_id, name, content) VALUES
-(2, 1, 'bet', '✅ SIGNAL CONFIRMED! 🚀\n\n🎯 ENTER NOW!\n💰 Bet: After {last_score}x\n🎯 Exit: Cash out at {target}x!\n\n⚠️ MAXIMUM {martingales} MARTINGALES\n🔥 STAY DISCIPLINED!'),
-(2, 1, 'wait', '🚨 ATTENTION! SIGNAL PREPARING 🚨\n\n⏰ Entry opportunity approaching...\n🔍 Waiting for confirmation...\n\n🎮 REGISTER NOW:\n🔗 <a href="https://1wfafs.life/v3/aviator-fire?p=4yz3">https://1wfafs.life/v3/aviator-fire?p=4yz3</a>'),
-(2, 1, 'cancel', '❌ SIGNAL CANCELLED\n\n🔄 Analysis continuing...\n⏳ Waiting for new signal...\n💡 Be patient, opportunity will come!'),
-(2, 1, 'win', '🎉 YOU WON! 💰\n\n🎯 Result: 2.00x\n✅ Target: 1.50x SUCCESS!\n\n📊 DAILY STATISTICS:\n━━━━━━━━━━━━━━━━━━━━\n✅ Wins: 1\n❌ Losses: 0\n━━━━━━━━━━━━━━━━━━━━\n💎 Success Rate: 100.00%\n\n🎰 PLAY AVIATOR: <a href="https://1wfafs.life/v3/aviator-fire?p=4yz3">here</a>'),
-(2, 1, 'lose', '❌ LOSS\n\n😔 Not this time...\n💪 Wait for the next signal!\n🎯 Patience and discipline win.');
+INSERT INTO templates(channel_id, group_id, name, language, content) VALUES
+(1, 1, 'bet', 'en', '✅ SIGNAL CONFIRMED! 🚀\n\n🎯 ENTER NOW!\n💰 Bet: After {last_score}x\n🎯 Exit: Cash out at {target}x!\n\n⚠️ MAXIMUM {martingales} MARTINGALES\n🔥 STAY DISCIPLINED!'),
+(1, 1, 'wait', 'en', '🚨 ATTENTION! SIGNAL PREPARING 🚨\n\n⏰ Entry opportunity approaching...\n🔍 Waiting for confirmation...\n\n🎮 REGISTER NOW:\n🔗 <a href="https://1wfafs.life/v3/aviator-fire?p=4yz3">https://1wfafs.life/v3/aviator-fire?p=4yz3</a>'),
+(1, 1, 'cancel', 'en', '❌ SIGNAL CANCELLED\n\n🔄 Analysis continuing...\n⏳ Waiting for new signal...\n💡 Be patient, opportunity will come!'),
+(1, 1, 'win', 'en', '🎉 YOU WON! 💰\n\n🎯 Result: 2.00x\n✅ Target: 1.50x SUCCESS!\n\n📊 DAILY STATISTICS:\n━━━━━━━━━━━━━━━━━━━━\n✅ Wins: 1\n❌ Losses: 0\n━━━━━━━━━━━━━━━━━━━━\n💎 Success Rate: 100.00%\n\n🎰 PLAY AVIATOR: <a href="https://1wfafs.life/v3/aviator-fire?p=4yz3">here</a>'),
+(1, 1, 'lose', 'en', '❌ LOSS\n\n😔 Not this time...\n💪 Wait for the next signal!\n🎯 Patience and discipline win.');
+
+INSERT INTO templates(channel_id, group_id, name, language, content) VALUES
+(1, 1, 'bet', 'es', '✅ ¡SEÑAL CONFIRMADA! 🚀\n\n🎯 ¡ENTRA AHORA!\n💰 Apuesta: Después de {last_score}x\n🎯 Salida: ¡Retira en {target}x!\n\n⚠️ MÁXIMO {martingales} MARTINGALAS\n🔥 ¡MANTÉN LA DISCIPLINA!'),
+(1, 1, 'wait', 'es', '🚨 ¡ATENCIÓN! PREPARANDO SEÑAL 🚨\n\n⏰ Oportunidad de entrada acercándose...\n🔍 Esperando confirmación...\n\n🎮 REGÍSTRATE AHORA:\n🔗 <a href="https://1wfafs.life/v3/aviator-fire?p=4yz3">https://1wfafs.life/v3/aviator-fire?p=4yz3</a>'),
+(1, 1, 'cancel', 'es', '❌ SEÑAL CANCELADA\n\n🔄 El análisis continúa...\n⏳ Esperando nueva señal...\n💡 ¡Ten paciencia, la oportunidad llegará!'),
+(1, 1, 'win', 'es', '🎉 ¡GANASTE! 💰\n\n🎯 Resultado: 2.00x\n✅ Objetivo: 1.50x ¡ÉXITO!\n\n📊 ESTADÍSTICAS DIARIAS:\n━━━━━━━━━━━━━━━━━━━━\n✅ Ganancias: 1\n❌ Pérdidas: 0\n━━━━━━━━━━━━━━━━━━━━\n💎 Tasa de Éxito: 100.00%\n\n🎰 JUEGA AVIATOR: <a href="https://1wfafs.life/v3/aviator-fire?p=4yz3">aquí</a>'),
+(1, 1, 'lose', 'es', '❌ PÉRDIDA\n\n😔 Esta vez no...\n💪 ¡Espera a la siguiente señal!\n🎯 La paciencia y la disciplina ganan.');

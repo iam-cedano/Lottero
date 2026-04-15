@@ -34,6 +34,7 @@ export default class ChannelRepository extends BaseRepository<Channel> {
         COALESCE(
           json_agg(
             json_build_object(
+              'id', g.id,
               'casino_id', g.casino_id, 
               'game_id', g.game_id, 
               'strategy', g.strategy, 
@@ -47,7 +48,7 @@ export default class ChannelRepository extends BaseRepository<Channel> {
        GROUP BY c.id
        ORDER BY c.id ASC`
     );
-    
+
     return result.rows.map((row) => {
       const channel = { ...row };
       if (channel.groups && channel.groups.length === 0) {
@@ -77,14 +78,14 @@ export default class ChannelRepository extends BaseRepository<Channel> {
        GROUP BY c.id`,
       [id]
     );
-    
+
     if (result.rows.length === 0) return null;
-    
+
     const channel = { ...result.rows[0] };
     if (channel.groups && channel.groups.length === 0) {
       delete channel.groups;
     }
-    
+
     return channel;
   }
 }

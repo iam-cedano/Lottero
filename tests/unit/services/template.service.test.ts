@@ -2,13 +2,12 @@ import { describe, it, beforeEach, expect, vi } from "vitest";
 import { Template } from "@/entities/template.entity";
 import TemplateRepository from "@/repositories/template.repository";
 import TemplateService from "@/services/template.service";
-import TemplateDomain from "@/domains/template.domain";
 import ChannelService from "@/services/channel.service";
 import GroupService from "@/services/group.service";
 
+
 describe("TemplateService", () => {
   const templateRepositoryMock = {} as unknown as TemplateRepository;
-  const channelServiceMock = {} as unknown as ChannelService;
   const groupServiceMock = {} as unknown as GroupService;
   let templateService: TemplateService;
 
@@ -22,14 +21,11 @@ describe("TemplateService", () => {
     templateRepositoryMock.delete = vi.fn();
     templateRepositoryMock.doesExistInChannelAndGroup = vi.fn();
 
-    channelServiceMock.getChannelById = vi.fn();
-
     groupServiceMock.getGroupById = vi.fn();
     groupServiceMock.isChannelInGroup = vi.fn();
 
     templateService = new TemplateService(
       templateRepositoryMock,
-      channelServiceMock,
       groupServiceMock,
     );
   });
@@ -40,6 +36,7 @@ describe("TemplateService", () => {
         channel_id: 1,
         group_id: 2,
         name: "welcome",
+        language: "en",
         content: "Welcome message",
       };
 
@@ -48,14 +45,11 @@ describe("TemplateService", () => {
         channel_id: 1,
         group_id: 2,
         name: "welcome",
+        language: "en",
         content: "Welcome message",
       };
 
-      vi.spyOn(channelServiceMock, "getChannelById").mockResolvedValue(
-        {} as any,
-      );
       vi.spyOn(groupServiceMock, "getGroupById").mockResolvedValue({} as any);
-      vi.spyOn(groupServiceMock, "isChannelInGroup").mockResolvedValue(true);
       vi.spyOn(
         templateRepositoryMock,
         "doesExistInChannelAndGroup",
@@ -79,6 +73,7 @@ describe("TemplateService", () => {
           channel_id: 1,
           group_id: 2,
           name: "welcome",
+          language: "en",
           content: "Welcome message",
         },
         {
@@ -86,6 +81,7 @@ describe("TemplateService", () => {
           channel_id: 1,
           group_id: 3,
           name: "bye",
+          language: "en",
           content: "Bye message",
         },
       ];
@@ -106,6 +102,7 @@ describe("TemplateService", () => {
         channel_id: 1,
         group_id: 2,
         name: "welcome",
+        language: "en",
         content: "Welcome message",
       };
 
@@ -135,6 +132,7 @@ describe("TemplateService", () => {
           channel_id: 1,
           group_id: 2,
           name: "welcome",
+          language: "en",
           content: "Welcome message",
         },
       ];
@@ -158,6 +156,7 @@ describe("TemplateService", () => {
           channel_id: 1,
           group_id: 2,
           name: "welcome",
+          language: "en",
           content: "Welcome message",
         },
       ];
@@ -185,17 +184,14 @@ describe("TemplateService", () => {
         channel_id: 1,
         group_id: 2,
         name: "welcome-updated",
+        language: "en",
         content: "Updated welcome message",
       };
 
       vi.spyOn(templateRepositoryMock, "findById").mockResolvedValue(
         updatedTemplate,
       );
-      vi.spyOn(channelServiceMock, "getChannelById").mockResolvedValue(
-        {} as any,
-      );
       vi.spyOn(groupServiceMock, "getGroupById").mockResolvedValue({} as any);
-      vi.spyOn(groupServiceMock, "isChannelInGroup").mockResolvedValue(true);
       vi.spyOn(templateRepositoryMock, "update").mockResolvedValue(
         updatedTemplate,
       );
@@ -217,6 +213,7 @@ describe("TemplateService", () => {
         channel_id: 1,
         group_id: 2,
         name: "welcome",
+        language: "en",
         content: "Welcome message",
       };
 
@@ -229,44 +226,6 @@ describe("TemplateService", () => {
 
       expect(templateRepositoryMock.delete).toHaveBeenCalledWith(1);
       expect(result).toBe(true);
-    });
-  });
-
-  describe("doesTemplateExistInChannelAndGroup", () => {
-    it("should return true when template exists", async () => {
-      vi.spyOn(
-        templateRepositoryMock,
-        "doesExistInChannelAndGroup",
-      ).mockResolvedValue(true);
-
-      const result = await templateService.doesTemplateExistInChannelAndGroup(
-        1,
-        2,
-        "welcome",
-      );
-
-      expect(
-        templateRepositoryMock.doesExistInChannelAndGroup,
-      ).toHaveBeenCalledWith(1, 2, "welcome");
-      expect(result).toBe(true);
-    });
-
-    it("should return false when template does not exist", async () => {
-      vi.spyOn(
-        templateRepositoryMock,
-        "doesExistInChannelAndGroup",
-      ).mockResolvedValue(false);
-
-      const result = await templateService.doesTemplateExistInChannelAndGroup(
-        1,
-        2,
-        "welcome",
-      );
-
-      expect(
-        templateRepositoryMock.doesExistInChannelAndGroup,
-      ).toHaveBeenCalledWith(1, 2, "welcome");
-      expect(result).toBe(false);
     });
   });
 });

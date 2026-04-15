@@ -9,9 +9,11 @@ export default class GroupDomain {
    * @returns boolean
    */
   public static IsMessageValid(request: MessageRequest): boolean {
-    const { channel, data } = request;
+    const { recipient, data } = request;
 
-    return GroupDomain.IsChannelValid(channel) && GroupDomain.IsDataValid(data);
+    return (
+      GroupDomain.IsChannelValid(recipient) && GroupDomain.IsDataValid(data)
+    );
   }
 
   /**

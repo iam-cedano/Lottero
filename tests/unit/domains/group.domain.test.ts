@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 describe("GroupDomain.IsMessageValid", () => {
   it("should return true when channel is casino-game-strategy", () => {
     const request = {
-      channel: "onewin-hello-world",
+      recipient: "onewin-hello-world",
       data: {
         command: "hello",
       },
@@ -18,7 +18,7 @@ describe("GroupDomain.IsMessageValid", () => {
 
   it("should return true when channel is casino-game", () => {
     const request = {
-      channel: "onewin-hello",
+      recipient: "onewin-hello",
       data: {
         command: "hello",
       },
@@ -31,7 +31,7 @@ describe("GroupDomain.IsMessageValid", () => {
 
   it("should return true when channel is casino", () => {
     const request = {
-      channel: "onewin",
+      recipient: "onewin",
       data: {
         command: "hello",
       },
@@ -44,7 +44,7 @@ describe("GroupDomain.IsMessageValid", () => {
 
   it("should return false when channel is undefined", () => {
     const request = {
-      channel: undefined,
+      recipient: undefined,
       data: {
         command: "hello",
       },

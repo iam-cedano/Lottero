@@ -4,7 +4,7 @@ export interface MessageData {
 }
 
 export interface MessageRequest {
-  channel: string;
+  recipient: string;
   data: MessageData;
 }
 
