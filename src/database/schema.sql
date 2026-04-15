@@ -70,7 +70,6 @@ CREATE TABLE IF NOT EXISTS channel_messages (
 -- Templates table
 CREATE TABLE IF NOT EXISTS templates (
     id SERIAL PRIMARY KEY,
-    channel_id INTEGER NOT NULL REFERENCES channels(id) ON DELETE CASCADE,
     group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     language VARCHAR(10) NOT NULL,
