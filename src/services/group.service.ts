@@ -19,6 +19,7 @@ import TelegramService from "@/services/telegram.service";
 import Spelling from "@/utils/spelling.util";
 import { TelegramMessage } from "@/models/telegram.model";
 import { ChannelMessage } from "@/entities/channel-message.entity";
+import { TemplateInput } from "@/entities/template.entity";
 
 @injectable()
 export default class GroupService {
@@ -34,26 +35,8 @@ export default class GroupService {
   ) { }
 
   async sendMessage(recipient: string, data: MessageData) {
-    if (!recipient || recipient.trim() == "") {
-      throw new ValidationException("Recipient is required and cannot be empty.");
-    }
-
-    if (!data || Object.keys(data).length == 0) {
-      throw new ValidationException("Data is required and cannot be empty.");
-    }
-
-    if (!data.command || data.command.trim() == "") {
-      throw new ValidationException(
-        "Command in data is required and cannot be empty.",
-      );
-    }
-
     if (!GroupDomain.IsMessageValid({ recipient, data })) {
       throw new ValidationException("Invalid recipient or data format");
-    }
-
-    if (data.command != "message") {
-      throw new ValidationException("Command must be 'message'");
     }
 
     const [casino, game, strategy] = recipient.split("-");
@@ -64,6 +47,11 @@ export default class GroupService {
       throw new NotFoundException("Casino not found");
     }
 
+    const casinoId = casinoEntity.id;
+    const type = data.type as string;
+
+    let templates: TemplateInput[] = [];
+
     if (casino && game && strategy) {
       const gameEntity = await this.gameService.getGameByName(game);
 
@@ -71,14 +59,10 @@ export default class GroupService {
         throw new NotFoundException("Game not found");
       }
 
-      const casinoId = casinoEntity.id;
       const gameId = gameEntity.id;
-      const strategyName = strategy;
-      const type = data.type as string;
 
-      const templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategyName, type);
+      templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategy, type);
 
-      return templates;
     } else if (casino && game && !strategy) {
       const gameEntity = await this.gameService.getGameByName(game);
 
@@ -86,51 +70,15 @@ export default class GroupService {
         throw new NotFoundException("Game not found");
       }
 
-      const casinoId = casinoEntity.id;
       const gameId = gameEntity.id;
-      const type = data.type as string;
 
-      const templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndType(casinoId, gameId, type);
+      templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndType(casinoId, gameId, type);
 
-      return templates;
     } else if (casino && !game && !strategy) {
-      const { command: _command, type: _type, ...gameData } = data as Record<string, string>;
-      const { id } = casinoEntity;
-
-      const type = data.type as string;
-
-      const templates = await this.templateService.getTemplatesFromCasinoIdAndType(id, type);
-
-      const messages: Partial<(TelegramMessage & ChannelMessage)>[] = [];
-
-      return templates;
-
-      const group_message_id = 1;
-
-      templates.forEach(async (template) => {
-        const content = template.content;
-        const chat_id = template.chat_id;
-
-        const formattedContent = Spelling.replaceAll(content, gameData);
-
-        const { telegram_message_id } = await this.telegramService.sendMessage(chat_id, formattedContent);
-
-        const channel_message_id = 1;
-
-        const message: Partial<(TelegramMessage & ChannelMessage)> = {
-          id: channel_message_id,
-          telegram_message_id: telegram_message_id,
-          group_id: template.group_id,
-          group_message_id: group_message_id
-        }
-
-        messages.push(message);
-      });
-
-      return messages;
+      templates = await this.templateService.getTemplatesFromCasinoIdAndType(casinoId, type);
     }
 
-    return [];
+    return templates;
   }
 
   async addChannelToGroup(

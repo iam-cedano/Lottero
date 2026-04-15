@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 import { injectable, inject } from "tsyringe";
 import BaseRepository from "@/repositories/base.repository";
-import { Template } from "@/entities/template.entity";
+import { Template, TemplateInput } from "@/entities/template.entity";
 
 @injectable()
 export default class TemplateRepository extends BaseRepository<Template> {
@@ -51,7 +51,7 @@ export default class TemplateRepository extends BaseRepository<Template> {
     return result.rows[0].exists;
   }
 
-  async findByCasinoIdAndType(casinoId: number, type: string): Promise<(Pick<Template, "id" | "channel_id" | "group_id" | "content"> & { chat_id: string })[]> {
+  async findByCasinoIdAndType(casinoId: number, type: string): Promise<TemplateInput[]> {
     const result = await this.pool.query(
       `SELECT t.id, c.chat_id, t.group_id, t.content FROM channels_groups cg
 	    INNER JOIN groups g ON cg.group_id = g.id
@@ -65,7 +65,7 @@ export default class TemplateRepository extends BaseRepository<Template> {
     return result.rows;
   }
 
-  async findByCasinoIdAndGameIdAndType(casinoId: number, gameId: number, type: string): Promise<(Pick<Template, "id" | "channel_id" | "group_id" | "content"> & { chat_id: string })[]> {
+  async findByCasinoIdAndGameIdAndType(casinoId: number, gameId: number, type: string): Promise<TemplateInput[]> {
     const result = await this.pool.query(
       `SELECT t.id AS template_id, c.chat_id, t.group_id, t.content FROM channels_groups cg
       INNER JOIN groups g ON cg.group_id = g.id
@@ -80,7 +80,7 @@ export default class TemplateRepository extends BaseRepository<Template> {
     return result.rows;
   }
 
-  async findByCasinoIdAndGameIdAndStrategyAndType(casinoId: number, gameId: number, strategy: string, type: string): Promise<(Pick<Template, "id" | "channel_id" | "content"> & { chat_id: string })[]> {
+  async findByCasinoIdAndGameIdAndStrategyAndType(casinoId: number, gameId: number, strategy: string, type: string): Promise<TemplateInput[]> {
     const result = await this.pool.query(
       `SELECT t.id AS template_id, c.chat_id, t.language, t.content FROM channels_groups cg
       INNER JOIN groups g ON cg.group_id = g.id

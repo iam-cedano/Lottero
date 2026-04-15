@@ -22,6 +22,24 @@ export default class GroupController {
     try {
       const { recipient, data } = req.body;
 
+      if (!recipient || recipient.trim() == "") {
+        throw new ValidationException("Recipient is required and cannot be empty.");
+      }
+
+      if (!data || Object.keys(data).length == 0) {
+        throw new ValidationException("Data is required and cannot be empty.");
+      }
+
+      if (!data.command || data.command.trim() == "") {
+        throw new ValidationException(
+          "Command in data is required and cannot be empty.",
+        );
+      }
+
+      if (data.command != "message") {
+        throw new ValidationException("Command must be 'message'");
+      }
+
       const result = await this.groupService.sendMessage(recipient, data);
 
       res.status(201).send(result);
