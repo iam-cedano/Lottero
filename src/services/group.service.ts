@@ -1,6 +1,5 @@
-import { MessageData } from "@/models/group.model";
 import { PartiesIndex } from "@/entities/party.entity";
-import { delay, inject, injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { Group } from "@/entities/group.entity";
 import { ChannelsGroups } from "@/entities/channels-groups.entity";
 import { Channel } from "@/entities/channel.entity";
@@ -14,12 +13,6 @@ import ValidationException from "@/exceptions/validation.exception";
 import NotFoundException from "@/exceptions/not-found.exception";
 import ConflictException from "@/exceptions/conflict.exception";
 import GroupStatisticService from "@/services/group-statistic.service";
-import TemplateService from "@/services/template.service";
-import TelegramService from "@/services/telegram.service";
-import Spelling from "@/utils/spelling.util";
-import { TelegramMessage } from "@/models/telegram.model";
-import { ChannelMessage } from "@/entities/channel-message.entity";
-import { TemplateInput } from "@/entities/template.entity";
 
 @injectable()
 export default class GroupService {
@@ -30,56 +23,7 @@ export default class GroupService {
     @inject(GameService) private readonly gameService: GameService,
     @inject(ChannelService) private readonly channelService: ChannelService,
     @inject(GroupStatisticService) private readonly groupStatisticService: GroupStatisticService,
-    @inject(TelegramService) private readonly telegramService: TelegramService,
-    @inject(delay(() => TemplateService)) private readonly templateService: TemplateService,
   ) { }
-
-  async sendMessage(recipient: string, data: MessageData) {
-    if (!GroupDomain.IsMessageValid({ recipient, data })) {
-      throw new ValidationException("Invalid recipient or data format");
-    }
-
-    const [casino, game, strategy] = recipient.split("-");
-
-    const casinoEntity = await this.casinoService.getCasinoByName(casino);
-
-    if (!casinoEntity) {
-      throw new NotFoundException("Casino not found");
-    }
-
-    const casinoId = casinoEntity.id;
-    const type = data.type as string;
-
-    let templates: TemplateInput[] = [];
-
-    if (casino && game && strategy) {
-      const gameEntity = await this.gameService.getGameByName(game);
-
-      if (!gameEntity) {
-        throw new NotFoundException("Game not found");
-      }
-
-      const gameId = gameEntity.id;
-
-      templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategy, type);
-
-    } else if (casino && game && !strategy) {
-      const gameEntity = await this.gameService.getGameByName(game);
-
-      if (!gameEntity) {
-        throw new NotFoundException("Game not found");
-      }
-
-      const gameId = gameEntity.id;
-
-      templates = await this.templateService.getTemplatesFromCasinoIdAndGameIdAndType(casinoId, gameId, type);
-
-    } else if (casino && !game && !strategy) {
-      templates = await this.templateService.getTemplatesFromCasinoIdAndType(casinoId, type);
-    }
-
-    return templates;
-  }
 
   async addChannelToGroup(
     groupId: number,

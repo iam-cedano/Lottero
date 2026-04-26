@@ -14,7 +14,7 @@ export default class ChannelMessageController {
     private readonly groupService: GroupService,
     @inject(GroupMessageService)
     private readonly groupMessageService: GroupMessageService,
-  ) {}
+  ) { }
 
   public createChannelMessage = async (
     req: Request<Record<string, string>, unknown, CreateChannelMessageRequest>,
@@ -45,7 +45,6 @@ export default class ChannelMessageController {
 
       const channelMessage =
         await this.channelMessageService.createChannelMessage({
-          group_id,
           group_message_id,
         });
 
@@ -158,7 +157,6 @@ export default class ChannelMessageController {
 
       const updatedChannelMessage =
         await this.channelMessageService.updateChannelMessage(id, {
-          group_id,
           group_message_id,
         });
       if (!updatedChannelMessage) {

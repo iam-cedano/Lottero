@@ -6,16 +6,14 @@ import ChannelRepository from "@/repositories/channel.repository";
 import CasinoService from "@/services/casino.service";
 import GameService from "@/services/game.service";
 import ChannelService from "@/services/channel.service";
+import NotFoundException from "@/exceptions/not-found.exception";
+import ValidationException from "@/exceptions/validation.exception";
+import GroupStatisticService from "@/services/group-statistic.service";
 import { Group } from "@/entities/group.entity";
 import { Channel } from "@/entities/channel.entity";
 import { Casino } from "@/entities/casino.entity";
 import { Game } from "@/entities/game.entity";
 import { ChannelsGroups } from "@/entities/channels-groups.entity";
-import NotFoundException from "@/exceptions/not-found.exception";
-import ValidationException from "@/exceptions/validation.exception";
-import GroupStatisticService from "@/services/group-statistic.service";
-import TelegramService from "@/services/telegram.service";
-import TemplateService from "@/services/template.service";
 
 describe("GroupService", () => {
   const groupRepositoryMock = {} as unknown as GroupRepository;
@@ -26,8 +24,6 @@ describe("GroupService", () => {
   const gameServiceMock = {} as unknown as GameService;
   const channelServiceMock = {} as unknown as ChannelService;
   const groupStatisticServiceMock = {} as unknown as GroupStatisticService;
-  const telegramServiceMock = {} as unknown as TelegramService;
-  const templateServiceMock = {} as unknown as TemplateService;
 
   let groupService: GroupService;
 
@@ -48,13 +44,13 @@ describe("GroupService", () => {
 
     casinoServiceMock.getCasinoById = vi.fn();
     casinoServiceMock.getCasinoByName = vi.fn();
+
     gameServiceMock.getGameById = vi.fn();
+    gameServiceMock.getGameByName = vi.fn();
+    gameServiceMock.getGames = vi.fn();
+
     channelServiceMock.getChannelById = vi.fn();
     channelRepositoryMock.findAll = vi.fn();
-
-    telegramServiceMock.sendMessage = vi.fn();
-
-    templateServiceMock.getTemplatesFromCasinoIdAndType = vi.fn();
 
     groupService = new GroupService(
       groupRepositoryMock,
@@ -63,40 +59,7 @@ describe("GroupService", () => {
       gameServiceMock,
       channelServiceMock,
       groupStatisticServiceMock,
-      telegramServiceMock,
-      templateServiceMock,
     );
-  });
-
-  describe("sendMessage", () => {
-    it("should return a message for a valid message", async () => {
-      const expected = [{
-        id: 1,
-        group_id: 1,
-        data: { casino: "casino", game: "game", strategy: "strategy" },
-        created: "10-01-2026",
-      }];
-
-      vi.spyOn(casinoServiceMock, "getCasinoByName").mockResolvedValueOnce({
-        id: 1,
-        name: "onewin",
-        alias: "OneWin",
-        url: "onewin.com",
-        status: true,
-      });
-
-      const result = await groupService.sendMessage("casino-game-strategy", {
-        command: "bet",
-      });
-
-      expect(result).toEqual(expected);
-    });
-
-    it("should throw an error when casino is empty", async () => {
-      await expect(
-        groupService.sendMessage("", { command: "bet" }),
-      ).rejects.toThrow(ValidationException);
-    });
   });
 
   describe("addChannelToGroup", () => {

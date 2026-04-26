@@ -1,18 +1,26 @@
-import { delay, inject, injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { Template } from "@/entities/template.entity";
 import TemplateRepository from "@/repositories/template.repository";
 import TemplateDomain from "@/domains/template.domain";
 import GroupService from "@/services/group.service";
+import CasinoService from "@/services/casino.service";
+import GameService from "@/services/game.service";
 import ValidationException from "@/exceptions/validation.exception";
 import NotFoundException from "@/exceptions/not-found.exception";
+import { Casino } from "@/entities/casino.entity";
+import { Game } from "@/entities/game.entity";
 
 @injectable()
 export default class TemplateService {
   constructor(
     @inject(TemplateRepository)
     private readonly templateRepository: TemplateRepository,
-    @inject(delay(() => GroupService))
+    @inject(GroupService)
     private readonly groupService: GroupService,
+    @inject(CasinoService)
+    private readonly casinoService: CasinoService,
+    @inject(GameService)
+    private readonly gameService: GameService,
   ) { }
 
   async createTemplate(data: Partial<Template>): Promise<Template> {
@@ -106,5 +114,32 @@ export default class TemplateService {
 
   async getTemplatesFromCasinoIdAndGameIdAndStrategyAndType(casinoId: number, gameId: number, strategy: string, type: string) {
     return this.templateRepository.findByCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategy, type);
+  }
+
+  async getTemplatesByFilter(casinoName: string, gameName?: string, strategy?: string, type?: string) {
+    const casinoEntity = await this.casinoService.getCasinoByName(casinoName);
+    if (!casinoEntity) {
+      throw new NotFoundException("Casino not found");
+    }
+    const { id: casinoId } = casinoEntity as Casino;
+
+    let gameId: number | undefined;
+    if (gameName) {
+      const gameEntity = await this.gameService.getGameByName(gameName);
+      if (!gameEntity) {
+        throw new NotFoundException("Game not found");
+      }
+      gameId = (gameEntity as Game).id;
+    }
+
+    if (casinoId && gameId && strategy && type) {
+      return this.getTemplatesFromCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategy, type);
+    } else if (casinoId && gameId && type) {
+      return this.getTemplatesFromCasinoIdAndGameIdAndType(casinoId, gameId, type);
+    } else if (casinoId && type) {
+      return this.getTemplatesFromCasinoIdAndType(casinoId, type);
+    }
+
+    return [];
   }
 }

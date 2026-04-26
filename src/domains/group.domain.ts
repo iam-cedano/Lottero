@@ -1,5 +1,5 @@
 import { container } from "tsyringe";
-import { MessageRequest } from "@/models/group.model";
+import { MessageRequest } from "@/models/message.model";
 import SendMessageInterface from "@/interfaces/send-message.interface";
 
 export default class GroupDomain {

@@ -5,8 +5,6 @@ import GroupController from "@/controllers/group.controller";
 const router = Router();
 const groupController = container.resolve(GroupController);
 
-router.post("/message", groupController.sendMessage);
-
 router.post("/group", groupController.createGroup);
 
 router.post(

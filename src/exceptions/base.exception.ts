@@ -12,7 +12,7 @@ export default class BaseException extends Error {
   report(res: Response) {
     let reply: Record<string, string | undefined> = { message: this.message };
 
-    if (config.production) {
+    if (!config.production) {
       this.statusCode = 500;
       reply = { ...reply, error: this.stack };
     }

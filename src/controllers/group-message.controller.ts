@@ -18,7 +18,7 @@ export default class GroupMessageController {
     res: Response,
   ): Promise<void> => {
     try {
-      const { group_id, data, created } = req.body;
+      const { group_id, data } = req.body;
 
       if (!group_id) {
         res.status(400).json({ groupMessage: "Missing group_id" });
@@ -27,8 +27,7 @@ export default class GroupMessageController {
 
       const groupMessage = await this.groupMessageService.createGroupMessage({
         group_id,
-        data,
-        created,
+        data
       });
 
       res.status(201).json(groupMessage);
@@ -86,13 +85,12 @@ export default class GroupMessageController {
         res.status(400).json({ groupMessage: "Invalid groupMessage ID" });
         return;
       }
-      const { group_id, data, created }: UpdateGroupMessageRequest = req.body;
+      const { group_id, data }: UpdateGroupMessageRequest = req.body;
 
       const updatedGroupMessage =
         await this.groupMessageService.updateGroupMessage(id, {
           group_id,
           data,
-          created,
         });
       if (!updatedGroupMessage) {
         res.status(404).json({ groupMessage: "GroupMessage not found" });

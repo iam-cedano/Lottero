@@ -15,4 +15,5 @@ export default class TemplateDomain {
       command == "block"
     );
   }
+
 }

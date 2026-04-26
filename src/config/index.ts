@@ -1,19 +1,6 @@
-import type Party from "@/party";
 import dotenv from "dotenv";
 
 dotenv.config();
-
-let partyInstance: Awaited<ReturnType<typeof Party.build>> | null = null;
-
-export async function getParty(): Promise<
-  Awaited<ReturnType<typeof Party.build>>
-> {
-  if (partyInstance == null) {
-    const { default: PartyClass } = await import("@/party");
-    partyInstance = await PartyClass.build();
-  }
-  return partyInstance;
-}
 
 export const config = {
   port: process.env.PORT || 3000,

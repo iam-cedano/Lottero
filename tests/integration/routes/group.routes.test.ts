@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import app from "@/app";
 import { config } from "@/config";
 import request from "supertest";
@@ -25,7 +27,7 @@ describe("Group Routes", () => {
       .post("/message")
       .set("Authorization", `Bearer ${config.apiSecretKey}`)
       .send({
-        channel: "onewin-aviator-simple_strategy",
+        recipient: "onewin-aviator-simple_strategy",
         data: { command: "message", type: "bet", last_score: 4.19 },
       })
       .type("application/json");

@@ -1,14 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { describe, it, beforeEach, expect, vi } from "vitest";
 import { Template } from "@/entities/template.entity";
 import TemplateRepository from "@/repositories/template.repository";
 import TemplateService from "@/services/template.service";
-import ChannelService from "@/services/channel.service";
 import GroupService from "@/services/group.service";
+import CasinoService from "@/services/casino.service";
+import GameService from "@/services/game.service";
 
 
 describe("TemplateService", () => {
   const templateRepositoryMock = {} as unknown as TemplateRepository;
   const groupServiceMock = {} as unknown as GroupService;
+  const casinoServiceMock = {} as unknown as CasinoService;
+  const gameServiceMock = {} as unknown as GameService;
   let templateService: TemplateService;
 
   beforeEach(() => {
@@ -24,9 +29,14 @@ describe("TemplateService", () => {
     groupServiceMock.getGroupById = vi.fn();
     groupServiceMock.isChannelInGroup = vi.fn();
 
+    casinoServiceMock.getCasinoById = vi.fn();
+    gameServiceMock.getGameById = vi.fn();
+
     templateService = new TemplateService(
       templateRepositoryMock,
       groupServiceMock,
+      casinoServiceMock,
+      gameServiceMock,
     );
   });
 

@@ -1,5 +1,5 @@
 import GroupDomain from "@/domains/group.domain";
-import { MessageRequest } from "@/models/group.model";
+import { MessageRequest } from "@/models/message.model";
 import { describe, expect, it } from "vitest";
 
 describe("GroupDomain.IsMessageValid", () => {
