@@ -12,7 +12,7 @@ export default class GroupDomain {
     const { recipient, data } = request;
 
     return (
-      GroupDomain.IsChannelValid(recipient) && GroupDomain.IsDataValid(data)
+      GroupDomain.IsChannelValid(recipient)
     );
   }
 

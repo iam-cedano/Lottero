@@ -17,7 +17,8 @@ INSERT INTO groups(casino_id, game_id, strategy, strategy_alias, status) VALUES
 
 INSERT INTO channels (language, chat_id, status) VALUES 
 ('es', 'bot_de_aviator', true),
-('en', 'best_avitor_predictor', true);
+('en', 'best_avitor_predictor', true),
+('es', 'senales_de_aviator', true);
 
 INSERT INTO channels_groups(channel_id, group_id) VALUES
 (1, 1),

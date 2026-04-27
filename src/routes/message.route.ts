@@ -7,5 +7,6 @@ const router = Router();
 const messagesController = container.resolve(MessagesController);
 
 router.post('/messages', messagesController.sendMessage);
+router.put('/messages/:groupMessageId', messagesController.editMessage);
 
 export default router;

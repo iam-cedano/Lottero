@@ -69,4 +69,8 @@ export default class MessagesService {
 
         return telegramMessages.sortByStatus();
     }
+
+    async editMessage(_groupMessageId: number, _newData: MessageData) {
+        throw new Error("Edit message functionality is not implemented yet");
+    }
 }

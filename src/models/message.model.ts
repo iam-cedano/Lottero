@@ -1,5 +1,4 @@
 export interface MessageData {
-    command: string;
     [key: string]: string;
 }
 
@@ -17,3 +16,5 @@ export interface DeleteMessageRequest {
     channel: string;
     data: MessageData;
 }
+
+export interface EditMessageGroupRequest extends MessageData { }
