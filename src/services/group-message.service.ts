@@ -36,7 +36,7 @@ export default class GroupMessageService {
     return this.groupMessageRepository.delete(id);
   }
 
-  async getMessagesByGroupId(groupId: number): Promise<GroupMessage[]> {
+  async getMessagesByGroupId(_groupId: number): Promise<GroupMessage[]> {
     throw new Error("Method not implemented yet");
   }
 }

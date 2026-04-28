@@ -33,8 +33,15 @@ export default class TelegramService {
             }));
     }
 
-    public async sendMessages(templates: (Pick<Template, "id" | "content"> & Pick<TemplateInput, "chat_id" | "group_id" | "channel_id">)[]): Promise<List<TelegramMessage>> {
-        const results = await Promise.all(templates.map((template) => this.sendMessage(template)));
-        return new List(...results);
+    public async sendMessages(templates: (Pick<Template, "id" | "content"> & Pick<TemplateInput, "chat_id" | "group_id" | "channel_id">)[]): Promise<Record<number, TelegramMessage[]>> {
+        const results = (await Promise.all(templates.map((template) => this.sendMessage(template)))).reduce((acc, msg) => {
+            acc[msg.group_id] ??= [] as TelegramMessage[];
+
+            acc[msg.group_id].push(msg);
+
+            return acc;
+        }, {} as Record<number, TelegramMessage[]>);
+
+        return results;
     }
 }

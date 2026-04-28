@@ -35,39 +35,27 @@ export default class MessagesService {
 
         const telegramMessages = await this.telegramService.sendMessages(templates);
 
-        const groups = telegramMessages.reduce((acc, tgMessage) => {
-            const { group_id, channel_id, status, telegram_message_id } = tgMessage;
-
-            if (!status) return acc;
-
-            if (telegram_message_id == null) {
-                console.error(`Telegram message ID is missing for group ${group_id} and channel ${channel_id}`);
-                return acc;
-            }
-
-            acc[group_id] ??= {};
-            acc[group_id][channel_id] = telegram_message_id;
-
-            return acc;
-        }, {} as Record<number, { [channel_id: number]: number }>);
-
-        for (const [groupIdStr, channels] of Object.entries(groups)) {
+        for (const [groupIdStr, channels] of Object.entries(telegramMessages)) {
             const groupFromDb = await this.groupMessageService.createGroupMessage({
                 group_id: Number(groupIdStr),
                 created: new Date(),
                 data,
             });
 
-            for (const [channelIdStr, telegram_message_id] of Object.entries(channels)) {
+
+            for (const channelMessage of channels) {
+                if (!channelMessage.status) continue;
+
+
                 await this.channelMessageService.createChannelMessage({
                     group_message_id: groupFromDb.id,
-                    channel_id: Number(channelIdStr),
-                    telegram_message_id,
+                    channel_id: Number(channelMessage.channel_id),
+                    telegram_message_id: Number(channelMessage.telegram_message_id),
                 });
             }
         }
 
-        return telegramMessages.sortByStatus();
+        return telegramMessages;
     }
 
     async editMessage(_groupMessageId: number, _newData: MessageData) {
