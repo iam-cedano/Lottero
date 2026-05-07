@@ -1,6 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import GroupMessageRepository from "@/repositories/group-message.repository";
-import { GroupMessage } from "@/entities/group-message.entity";
+import { GroupMessage, MessageFromGroup } from "@/entities/group-message.entity";
+import { ChannelMessage } from "@/entities/channel-message.entity";
 
 @injectable()
 export default class GroupMessageService {
@@ -36,7 +37,7 @@ export default class GroupMessageService {
     return this.groupMessageRepository.delete(id);
   }
 
-  async getMessagesByGroupId(_groupId: number): Promise<GroupMessage[]> {
+  async getChannelMessagesById(_id: number): Promise<MessageFromGroup[]> {
     throw new Error("Method not implemented yet");
   }
 }

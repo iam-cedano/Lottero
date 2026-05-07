@@ -16,5 +16,3 @@ export interface DeleteMessageRequest {
     channel: string;
     data: MessageData;
 }
-
-export interface EditMessageGroupRequest extends MessageData { }

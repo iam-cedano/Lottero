@@ -4,3 +4,8 @@ export interface GroupMessage {
   data: Record<string, unknown>;
   created: Date;
 }
+
+export interface MessageFromGroup {
+  channel_id: string;
+  telegram_message_id: number;
+}

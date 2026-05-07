@@ -1,23 +1,7 @@
-import { Template, TemplateInput } from "@/entities/template.entity";
-import { TelegramMessage } from "@/models/telegram.model";
+import { EditMessagePayload, SendMessagePayload, TelegramMessage } from "@/models/telegram.model";
 import { injectable, singleton } from "tsyringe";
 import { config } from "@/config";
 import axios from "axios";
-
-export interface SendMessagePayload {
-    id: Template["id"];
-    content: Template["content"];
-    chat_id: TemplateInput["chat_id"];
-    group_id: TemplateInput["group_id"];
-    channel_id: TemplateInput["channel_id"];
-}
-
-export interface EditMessagePayload {
-    content: Template["content"];
-    chat_id: TemplateInput["chat_id"];
-    group_id: TemplateInput["group_id"];
-    channel_id: TemplateInput["channel_id"];
-}
 
 @injectable()
 @singleton()
@@ -73,5 +57,9 @@ export default class TelegramService {
 
     public async sendMessages(templates: SendMessagePayload[]): Promise<Record<number, TelegramMessage>> {
         return await Promise.all(templates.map((template) => this.sendMessage(template)));
+    }
+
+    public async editMessages(template: EditMessagePayload, messageIds: number[]): Promise<Record<number, TelegramMessage>> {
+        return await Promise.all(messageIds.map((messageId) => this.editMessage(template, messageId)));
     }
 }

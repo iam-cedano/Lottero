@@ -7,7 +7,7 @@ import gameRoutes from "@/routes/game.route";
 import groupMessagesRoutes from "@/routes/group-message.route";
 import channelMessageRoutes from "@/routes/channel-message.route";
 import templateRoutes from "@/routes/template.route";
-import messagesRoutes from "@/routes/message.route";
+import messageRoutes from "@/routes/message.route";
 
 const router = Router();
 
@@ -19,6 +19,6 @@ router.use("/", gameRoutes);
 router.use("/", groupMessagesRoutes);
 router.use("/", channelMessageRoutes);
 router.use("/", templateRoutes);
-router.use("/", messagesRoutes);
+router.use("/", messageRoutes);
 
 export default router;

@@ -5,7 +5,7 @@ import {
   UpdateGroupRequest,
 } from "@/models/group.model";
 import GroupService from "@/services/group.service";
-import MessagesService from "@/services/messages.service";
+import MessagesService from "@/services/message.service";
 import Clock from "@/utils/clock.util";
 import BaseException from "@/exceptions/base.exception";
 import ValidationException from "@/exceptions/validation.exception";

@@ -14,6 +14,8 @@ import { Channel } from "@/entities/channel.entity";
 import { Casino } from "@/entities/casino.entity";
 import { Game } from "@/entities/game.entity";
 import { ChannelsGroups } from "@/entities/channels-groups.entity";
+import GroupMessageRepository from "@/repositories/group-message.repository";
+import Clock from "@/utils/clock.util";
 
 describe("GroupService", () => {
   const groupRepositoryMock = {} as unknown as GroupRepository;
@@ -24,6 +26,8 @@ describe("GroupService", () => {
   const gameServiceMock = {} as unknown as GameService;
   const channelServiceMock = {} as unknown as ChannelService;
   const groupStatisticServiceMock = {} as unknown as GroupStatisticService;
+  const groupMessageRepositoryMock = {} as unknown as GroupMessageRepository;
+  const clockMock = { now: () => new Date() } as unknown as Clock;
 
   let groupService: GroupService;
 
@@ -59,6 +63,8 @@ describe("GroupService", () => {
       gameServiceMock,
       channelServiceMock,
       groupStatisticServiceMock,
+      groupMessageRepositoryMock,
+      clockMock
     );
   });
 
