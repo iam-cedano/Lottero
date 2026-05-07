@@ -1,15 +1,15 @@
 import BaseException from "@/exceptions/base.exception";
 import ValidationException from "@/exceptions/validation.exception";
 import { EditMessageGroupRequest, MessageRequest } from "@/models/message.model";
-import MessagesService from "@/services/messages.service";
+import MessageService from "@/services/message.service";
 import { Request, Response } from "express";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
-export default class MessagesController {
+export default class MessageController {
 
     public constructor(
-        @inject(MessagesService) private readonly messagesService: MessagesService,
+        @inject(MessageService) private readonly messageService: MessageService,
     ) { }
 
     public sendMessage = async (
@@ -31,7 +31,7 @@ export default class MessagesController {
                 throw new ValidationException("Data type is required and cannot be empty.");
             }
 
-            const result = await this.messagesService.sendMessage(recipient, data);
+            const result = await this.messageService.sendMessage(recipient, data);
 
             res.status(201).send(result);
         } catch (error) {
@@ -60,7 +60,7 @@ export default class MessagesController {
                 throw new ValidationException("Group message ID is required and must be a valid number.");
             }
 
-            const result = await this.messagesService.editMessage(Number(groupMessageId), req.body);
+            const result = await this.messageService.editMessage(Number(groupMessageId), req.body);
 
             res.status(200).send(result);
         } catch (error) {

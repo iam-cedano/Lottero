@@ -10,7 +10,7 @@ import ChannelMessageService from "@/services/channel-message.service";
 import { TelegramMessage } from "@/models/telegram.model";
 
 @injectable()
-export default class MessagesService {
+export default class MessageService {
     constructor(
         @inject(TelegramService) private readonly telegramService: TelegramService,
         @inject(TemplateService) private readonly templateService: TemplateService,

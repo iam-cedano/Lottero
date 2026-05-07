@@ -1,12 +1,12 @@
-import MessagesController from "@/controllers/messages.controller";
+import MessageController from "@/controllers/message.controller";
 import { Router } from "express";
 import { container } from "tsyringe";
 
 const router = Router();
 
-const messagesController = container.resolve(MessagesController);
+const messageController = container.resolve(MessageController);
 
-router.post('/messages', messagesController.sendMessage);
-router.put('/messages/:groupMessageId', messagesController.editMessage);
+router.post('/messages', messageController.sendMessage);
+router.put('/messages/:groupMessageId', messageController.editMessage);
 
 export default router;
