@@ -13,6 +13,8 @@ import ValidationException from "@/exceptions/validation.exception";
 import NotFoundException from "@/exceptions/not-found.exception";
 import ConflictException from "@/exceptions/conflict.exception";
 import GroupStatisticService from "@/services/group-statistic.service";
+import GroupMessageRepository from "@/repositories/group-message.repository";
+import Clock from "@/utils/clock.util";
 
 @injectable()
 export default class GroupService {
@@ -23,6 +25,8 @@ export default class GroupService {
     @inject(GameService) private readonly gameService: GameService,
     @inject(ChannelService) private readonly channelService: ChannelService,
     @inject(GroupStatisticService) private readonly groupStatisticService: GroupStatisticService,
+    @inject(GroupMessageRepository) private readonly groupMessageRepository: GroupMessageRepository,
+    @inject(Clock) private readonly clock: Clock,
   ) { }
 
   async addChannelToGroup(
@@ -123,7 +127,7 @@ export default class GroupService {
 
     await this.groupStatisticService.createGroupStatistic({
       group_id: group.id,
-      the_date: new Date().toLocaleDateString(),
+      the_date: this.clock.now().toLocaleDateString(),
       data: {}
     });
 
@@ -184,5 +188,9 @@ export default class GroupService {
     }
 
     return this.groupRepository.delete(id);
+  }
+
+  async getMessagesFromGroupMessageId(_groupMessageId: number) {
+    throw new Error("Method not implemented yet");
   }
 }

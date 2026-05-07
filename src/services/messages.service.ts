@@ -7,6 +7,7 @@ import TelegramService from "@/services/telegram.service";
 import Spelling from "@/utils/spelling.util";
 import GroupMessageService from "@/services/group-message.service";
 import ChannelMessageService from "@/services/channel-message.service";
+import { TelegramMessage } from "@/models/telegram.model";
 
 @injectable()
 export default class MessagesService {
@@ -35,27 +36,43 @@ export default class MessagesService {
 
         const telegramMessages = await this.telegramService.sendMessages(templates);
 
-        for (const [groupIdStr, channels] of Object.entries(telegramMessages)) {
-            const groupFromDb = await this.groupMessageService.createGroupMessage({
-                group_id: Number(groupIdStr),
-                created: new Date(),
-                data,
-            });
+        const groupsWithMessages: Record<number, { group_message_id: number, telegram_messages: Partial<TelegramMessage>[] }> = {};
 
+        for (const telegramMessage of Object.values(telegramMessages)) {
+            const { group_id, channel_id, reason, status, telegram_chat_id, telegram_message_id } = telegramMessage;
 
-            for (const channelMessage of channels) {
-                if (!channelMessage.status) continue;
+            if (!groupsWithMessages[group_id]) {
+                const { id } = await this.groupMessageService.createGroupMessage({ group_id, data });
 
-
-                await this.channelMessageService.createChannelMessage({
-                    group_message_id: groupFromDb.id,
-                    channel_id: Number(channelMessage.channel_id),
-                    telegram_message_id: Number(channelMessage.telegram_message_id),
-                });
+                groupsWithMessages[group_id] = { group_message_id: id, telegram_messages: [] };
             }
+
+            if (status) {
+                await this.channelMessageService.createChannelMessage({
+                    group_message_id: groupsWithMessages[group_id].group_message_id,
+                    channel_id,
+                    telegram_message_id,
+                });
+
+                groupsWithMessages[group_id].telegram_messages.push({
+                    status,
+                    channel_id,
+                    telegram_chat_id,
+                    telegram_message_id,
+                });
+
+                continue;
+            }
+
+            groupsWithMessages[group_id].telegram_messages.push({
+                status,
+                channel_id,
+                telegram_chat_id,
+                reason,
+            });
         }
 
-        return telegramMessages;
+        return groupsWithMessages;
     }
 
     async editMessage(_groupMessageId: number, _newData: MessageData) {

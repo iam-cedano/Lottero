@@ -6,6 +6,7 @@ import {
 } from "@/models/group.model";
 import GroupService from "@/services/group.service";
 import MessagesService from "@/services/messages.service";
+import Clock from "@/utils/clock.util";
 import BaseException from "@/exceptions/base.exception";
 import ValidationException from "@/exceptions/validation.exception";
 
@@ -14,6 +15,7 @@ export default class GroupController {
   constructor(
     @inject(GroupService) private readonly groupService: GroupService,
     @inject(MessagesService) private readonly messagesService: MessagesService,
+    @inject(Clock) private readonly clock: Clock,
   ) { }
 
   public addChannelToGroup = async (
@@ -82,7 +84,7 @@ export default class GroupController {
   ): Promise<void> => {
     try {
       const { casino_id, game_id, strategy, strategy_alias } = req.body;
-      const created = new Date();
+      const created = this.clock.now();
 
       const group = await this.groupService.createGroup({
         casino_id,
