@@ -37,7 +37,7 @@ export default class ChannelMessageController {
       }
 
       const groupMessage =
-        await this.groupMessageService.getMessageById(group_message_id);
+        await this.groupMessageService.getGroupMessageById(group_message_id);
       if (!groupMessage) {
         res.status(404).json({ groupMessage: "GroupMessage not found" });
         return;
@@ -148,7 +148,7 @@ export default class ChannelMessageController {
 
       if (group_message_id !== undefined) {
         const groupMessage =
-          await this.groupMessageService.getMessageById(group_message_id);
+          await this.groupMessageService.getGroupMessageById(group_message_id);
         if (!groupMessage) {
           res.status(404).json({ groupMessage: "GroupMessage not found" });
           return;

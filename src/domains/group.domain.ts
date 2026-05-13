@@ -1,5 +1,5 @@
 import { container } from "tsyringe";
-import { MessageRequest } from "@/models/message.model";
+import { MessageGroupRequest } from "@/models/message.model";
 import SendMessageInterface from "@/interfaces/send-message.interface";
 
 export default class GroupDomain {
@@ -8,8 +8,8 @@ export default class GroupDomain {
    * @param request request to validate
    * @returns boolean
    */
-  public static IsMessageValid(request: MessageRequest): boolean {
-    const { recipient, data } = request;
+  public static IsMessageValid(request: MessageGroupRequest): boolean {
+    const { recipient } = request;
 
     return (
       GroupDomain.IsChannelValid(recipient)

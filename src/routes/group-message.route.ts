@@ -7,7 +7,7 @@ const groupMessageController = container.resolve(GroupMessageController);
 
 router.post("/groupMessage", groupMessageController.createGroupMessage);
 router.get("/groupMessages", groupMessageController.getGroupMessages);
-router.get("/groupMessage/:id", groupMessageController.getMessageById);
+router.get("/groupMessage/:id", groupMessageController.getGroupMessageById);
 router.put("/groupMessage/:id", groupMessageController.updateGroupMessage);
 router.delete("/groupMessage/:id", groupMessageController.deleteGroupMessage);
 

@@ -1,4 +1,4 @@
-import { EditMessagePayload, SendMessagePayload, TelegramMessage } from "@/models/telegram.model";
+import { DeletedTelegramMessage, DeleteMessagePayload, EditedTelegramMessage, EditMessagePayload, SendMessagePayload, SentTelegramMessage } from "@/models/telegram.model";
 import { injectable, singleton } from "tsyringe";
 import { config } from "@/config";
 import axios from "axios";
@@ -8,7 +8,7 @@ import axios from "axios";
 export default class TelegramService {
     private readonly baseUrl = `https://api.telegram.org/bot${config.botToken}`;
 
-    public async sendMessage(template: SendMessagePayload): Promise<TelegramMessage> {
+    public async sendMessage(template: SendMessagePayload): Promise<SentTelegramMessage> {
         return axios
             .post(`${this.baseUrl}/sendMessage`, {
                 chat_id: `@${template.chat_id}`,
@@ -31,11 +31,11 @@ export default class TelegramService {
             }));
     }
 
-    public async editMessage(template: EditMessagePayload, messageId: number): Promise<TelegramMessage> {
+    public async editMessage(template: EditMessagePayload): Promise<EditedTelegramMessage> {
         return axios
             .post(`${this.baseUrl}/editMessageText`, {
                 chat_id: `@${template.chat_id}`,
-                message_id: messageId,
+                message_id: template.telegram_message_id,
                 text: template.content,
                 parse_mode: "HTML",
             })
@@ -55,11 +55,33 @@ export default class TelegramService {
             }));
     }
 
-    public async sendMessages(templates: SendMessagePayload[]): Promise<Record<number, TelegramMessage>> {
+    public async deleteMessage(template: DeleteMessagePayload): Promise<DeletedTelegramMessage> {
+        return axios
+            .post(`${this.baseUrl}/deleteMessage`, {
+                chat_id: `@${template.chat_id}`,
+                message_id: template.telegram_message_id,
+            })
+            .then((_) => ({
+                status: true,
+                telegram_chat_id: template.chat_id,
+                telegram_message_id: template.telegram_message_id,
+            }))
+            .catch((_) => ({
+                status: false,
+                telegram_chat_id: template.chat_id,
+                reason: "Could not delete message",
+            }));
+    }
+
+    public async sendMessages(templates: SendMessagePayload[]): Promise<Record<number, SentTelegramMessage>> {
         return await Promise.all(templates.map((template) => this.sendMessage(template)));
     }
 
-    public async editMessages(template: EditMessagePayload, messageIds: number[]): Promise<Record<number, TelegramMessage>> {
-        return await Promise.all(messageIds.map((messageId) => this.editMessage(template, messageId)));
+    public async editMessages(templates: EditMessagePayload[]): Promise<Record<number, EditedTelegramMessage>> {
+        return await Promise.all(templates.map((template) => this.editMessage(template)));
+    }
+
+    public async deleteMessages(templates: DeleteMessagePayload[]): Promise<Record<number, DeletedTelegramMessage>> {
+        return await Promise.all(templates.map((template) => this.deleteMessage(template)));
     }
 }

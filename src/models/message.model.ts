@@ -2,17 +2,17 @@ export interface MessageData {
     [key: string]: string;
 }
 
-export interface MessageRequest {
+export interface MessageGroupRequest {
     recipient: string;
     data: MessageData;
 }
 
-export interface EditMessageRequest {
-    channel: string;
-    data: MessageData;
+export interface EditGroupMessageRequest {
+    type: string;
+    [key: string]: string;
 }
 
 export interface DeleteMessageRequest {
-    channel: string;
+    recipient: string;
     data: MessageData;
 }

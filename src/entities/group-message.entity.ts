@@ -6,6 +6,6 @@ export interface GroupMessage {
 }
 
 export interface MessageFromGroup {
-  channel_id: string;
+  chat_id: string;
   telegram_message_id: number;
 }

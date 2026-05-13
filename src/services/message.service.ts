@@ -1,13 +1,14 @@
-import { MessageData } from "@/models/message.model";
 import { inject, injectable } from "tsyringe";
-import GroupDomain from "@/domains/group.domain";
+import { DeleteMessagePayload, SentTelegramMessage } from "@/models/telegram.model";
+import { EditGroupMessageRequest, MessageData } from "@/models/message.model";
 import ValidationException from "@/exceptions/validation.exception";
 import TemplateService from "@/services/template.service";
 import TelegramService from "@/services/telegram.service";
 import Spelling from "@/utils/spelling.util";
 import GroupMessageService from "@/services/group-message.service";
 import ChannelMessageService from "@/services/channel-message.service";
-import { TelegramMessage } from "@/models/telegram.model";
+import Clock from "@/utils/clock.util";
+import MessageDomain from "@/domains/message.domain";
 
 @injectable()
 export default class MessageService {
@@ -16,17 +17,19 @@ export default class MessageService {
         @inject(TemplateService) private readonly templateService: TemplateService,
         @inject(GroupMessageService) private readonly groupMessageService: GroupMessageService,
         @inject(ChannelMessageService) private readonly channelMessageService: ChannelMessageService,
+        @inject(Clock) private readonly clock: Clock,
     ) { }
 
-    async sendMessage(recipient: string, data: MessageData) {
-        if (!GroupDomain.IsMessageValid({ recipient, data })) {
-            throw new ValidationException("Invalid recipient or data format");
+    async sendGroupMessage(recipient: string, data: MessageData) {
+        if (!MessageDomain.IsChannelValid(recipient)) {
+            throw new ValidationException("Invalid recipient format. Expected format: 'casino-game-strategy' or 'casino-game' or 'casino'.");
         }
 
         const [casino, game, strategy] = recipient.split("-");
+        const now = this.clock.nowFormatted();
         const { type } = data;
 
-        const templatesRaw = await this.templateService.getTemplatesByFilter(casino, game, strategy, type);
+        const templatesRaw = await this.templateService.getTemplatesByCasinoAndGameAndStrategyAndType(casino, game, strategy, type);
 
         const templates = templatesRaw.map(template => {
             template.content = Spelling.replaceAll(template.content, data);
@@ -36,13 +39,13 @@ export default class MessageService {
 
         const telegramMessages = await this.telegramService.sendMessages(templates);
 
-        const groupsWithMessages: Record<number, { group_message_id: number, telegram_messages: Partial<TelegramMessage>[] }> = {};
+        const groupsWithMessages: Record<number, { group_message_id: number, telegram_messages: Partial<SentTelegramMessage>[] }> = {};
 
         for (const telegramMessage of Object.values(telegramMessages)) {
             const { group_id, channel_id, reason, status, telegram_chat_id, telegram_message_id } = telegramMessage;
 
             if (!groupsWithMessages[group_id]) {
-                const { id } = await this.groupMessageService.createGroupMessage({ group_id, data });
+                const { id } = await this.groupMessageService.createGroupMessage({ group_id, data, created: now });
 
                 groupsWithMessages[group_id] = { group_message_id: id, telegram_messages: [] };
             }
@@ -75,7 +78,44 @@ export default class MessageService {
         return groupsWithMessages;
     }
 
-    async editMessage(_groupMessageId: number, _newData: MessageData) {
-        throw new Error("Edit message functionality is not implemented yet");
+    async editGroupMessage(groupMessageId: number, data: EditGroupMessageRequest) {
+        const doesGroupMessageExist = await this.groupMessageService.getGroupMessageById(groupMessageId);
+
+        if (!doesGroupMessageExist) {
+            throw new ValidationException("Group message with the provided ID does not exist.");
+        }
+
+        const { type } = data;
+
+        const templatesRaw = await this.templateService.getTemplatesByGroupIdAndType(groupMessageId, type);
+
+        const templates = templatesRaw.map(template => {
+            template.content = Spelling.replaceAll(template.content, data);
+
+            return template;
+        });
+
+        const response = await this.telegramService.editMessages(templates);
+
+        return response;
+    }
+
+    async deleteGroupMessage(groupMessageId: number) {
+        const doesGroupMessageExist = await this.groupMessageService.getGroupMessageById(groupMessageId);
+
+        if (!doesGroupMessageExist) {
+            throw new ValidationException("Group message with the provided ID does not exist.");
+        }
+
+        const telegramMessages = await this.groupMessageService.getChannelMessagesById(groupMessageId);
+
+        const deletePayloads: DeleteMessagePayload[] = telegramMessages.map((message) => ({
+            chat_id: message.chat_id,
+            telegram_message_id: message.telegram_message_id,
+        }));
+
+        await this.telegramService.deleteMessages(deletePayloads);
+
+        return telegramMessages;
     }
 }

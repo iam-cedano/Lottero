@@ -2,6 +2,7 @@ import { Pool } from "pg";
 import { injectable, inject } from "tsyringe";
 import BaseRepository from "@/repositories/base.repository";
 import { Template, TemplateInput } from "@/entities/template.entity";
+import { EditMessagePayload } from "@/models/telegram.model";
 
 @injectable()
 export default class TemplateRepository extends BaseRepository<Template> {
@@ -90,6 +91,21 @@ export default class TemplateRepository extends BaseRepository<Template> {
       INNER JOIN games ga ON ga.id = g.game_id
       WHERE ca.id = $1 AND ga.id = $2 AND g.strategy = $3 AND t.name = $4`,
       [casinoId, gameId, strategy, type]
+    );
+
+    return result.rows;
+  }
+
+  async findByGroupIdAndType(groupMessageId: number, type: string): Promise<EditMessagePayload[]> {
+    const result = await this.pool.query(
+      `SELECT t.id AS id, g.id AS group_id, c.id AS channel_id, t.content , c.chat_id, cm.telegram_message_id FROM ${this.tableName} t
+	      INNER JOIN groups g ON t.group_id = g.id 
+	      INNER JOIN channels_groups cg ON cg.group_id = g.id 
+	      INNER JOIN channels c ON c.id = cg.channel_id AND c.language = t.language 
+	      INNER JOIN group_messages gm ON gm.group_id = g.id
+        INNER JOIN channel_messages cm ON cm.group_message_id = gm.id AND cm.channel_id = c.id
+      WHERE gm.id = $1 AND t.name = $2`,
+      [groupMessageId, type],
     );
 
     return result.rows;

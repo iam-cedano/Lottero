@@ -1,6 +1,6 @@
 import BaseException from "@/exceptions/base.exception";
 import ValidationException from "@/exceptions/validation.exception";
-import { MessageRequest, EditMessageRequest } from "@/models/message.model";
+import { EditGroupMessageRequest, MessageGroupRequest } from "@/models/message.model";
 import MessageService from "@/services/message.service";
 import { Request, Response } from "express";
 import { inject, injectable } from "tsyringe";
@@ -12,8 +12,8 @@ export default class MessageController {
         @inject(MessageService) private readonly messageService: MessageService,
     ) { }
 
-    public sendMessage = async (
-        req: Request<Record<string, string>, unknown, MessageRequest>,
+    public sendGroupMessage = async (
+        req: Request<Record<string, string>, unknown, MessageGroupRequest>,
         res: Response,
     ) => {
         try {
@@ -31,7 +31,7 @@ export default class MessageController {
                 throw new ValidationException("Data type is required and cannot be empty.");
             }
 
-            const result = await this.messageService.sendMessage(recipient, data);
+            const result = await this.messageService.sendGroupMessage(recipient, data);
 
             res.status(201).send(result);
         } catch (error) {
@@ -44,12 +44,12 @@ export default class MessageController {
         }
     };
 
-    public editMessage = async (
-        req: Request<Record<string, string>, unknown, EditMessageRequest>,
+    public editGroupMessage = async (
+        req: Request<Record<string, string>, unknown, EditGroupMessageRequest>,
         res: Response,
     ) => {
         try {
-            const { data } = req.body;
+            const data = req.body;
             const { groupMessageId } = req.params;
 
             if (!data.type || data.type.trim() == "") {
@@ -60,7 +60,7 @@ export default class MessageController {
                 throw new ValidationException("Group message ID is required and must be a valid number.");
             }
 
-            const result = await this.messageService.editMessage(Number(groupMessageId), data);
+            const result = await this.messageService.editGroupMessage(Number(groupMessageId), data);
 
             res.status(200).send(result);
         } catch (error) {
@@ -72,4 +72,31 @@ export default class MessageController {
             error.report(res);
         }
     }
+
+    public deleteGroupMessage = async (req: Request, res: Response) => {
+        try {
+            const { groupMessageId } = req.params;
+
+            if (!groupMessageId || isNaN(Number(groupMessageId))) {
+                throw new ValidationException("Group message ID is required and must be a valid number.");
+            }
+
+            await this.messageService.deleteGroupMessage(Number(groupMessageId));
+
+            res.status(204).send(null);
+        } catch (error) {
+            if (!(error instanceof BaseException)) {
+                res.status(500).json({ message: "An error has occured", error: error instanceof Error ? error.stack : undefined });
+                return;
+            }
+
+            error.report(res);
+        }
+    }
+
+    public editMessage = async () => {
+        throw new Error("Not implemented yet");
+    }
+
+
 }

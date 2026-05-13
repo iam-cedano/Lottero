@@ -52,7 +52,7 @@ export default class GroupMessageController {
     }
   };
 
-  public getMessageById = async (
+  public getGroupMessageById = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
@@ -62,7 +62,7 @@ export default class GroupMessageController {
         res.status(400).json({ groupMessage: "Invalid groupMessage ID" });
         return;
       }
-      const groupMessage = await this.groupMessageService.getMessageById(id);
+      const groupMessage = await this.groupMessageService.getGroupMessageById(id);
       if (!groupMessage) {
         res.status(404).json({ groupMessage: "GroupMessage not found" });
         return;

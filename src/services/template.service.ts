@@ -116,7 +116,7 @@ export default class TemplateService {
     return this.templateRepository.findByCasinoIdAndGameIdAndStrategyAndType(casinoId, gameId, strategy, type);
   }
 
-  async getTemplatesByFilter(casinoName: string, gameName?: string, strategy?: string, type?: string) {
+  async getTemplatesByCasinoAndGameAndStrategyAndType(casinoName: string, gameName?: string, strategy?: string, type?: string) {
     const casinoEntity = await this.casinoService.getCasinoByName(casinoName);
     if (!casinoEntity) {
       throw new NotFoundException("Casino not found");
@@ -141,5 +141,9 @@ export default class TemplateService {
     }
 
     return [];
+  }
+
+  async getTemplatesByGroupIdAndType(groupId: number, type: string) {
+    return this.templateRepository.findByGroupIdAndType(groupId, type);
   }
 }
